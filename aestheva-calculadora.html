@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aestheva · Calculadora Financiera</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream:#F7F3EE;--warm:#EDE5D8;--gold:#C9A96E;--gold-light:#E8D5B0;
+    --rose:#C4847A;--rose-light:#E8C5C0;--deep:#2C2420;--mid:#6B5B52;
+    --soft:#9C8B82;--success:#7A9E7E;--danger:#C4615A;--warning:#C9A030;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--deep);min-height:100vh;}
+  .header{background:var(--deep);padding:24px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--gold);}
+  .brand-name{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;letter-spacing:6px;color:var(--gold-light);text-transform:uppercase;}
+  .brand-sub{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--soft);text-transform:uppercase;margin-top:2px;}
+  .header-badge{font-family:'DM Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:2px;border:1px solid var(--gold);padding:5px 12px;text-transform:uppercase;}
+  .tabs{background:var(--deep);display:flex;padding:0 40px;border-bottom:1px solid rgba(201,169,110,0.2);overflow-x:auto;}
+  .tab{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--soft);padding:13px 18px;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
+  .tab:hover{color:var(--gold-light);}
+  .tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+  .main{max-width:1240px;margin:0 auto;padding:28px 40px 60px;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .section-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--deep);letter-spacing:1px;margin-bottom:4px;}
+  .section-sub{font-size:12px;color:var(--soft);letter-spacing:1px;margin-bottom:22px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+  .card{background:white;border:1px solid var(--warm);border-radius:2px;padding:22px;}
+  .card-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--soft);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .card-title::before{content:'';width:14px;height:1px;background:var(--gold);display:inline-block;}
+  .kpi-box{background:white;border:1px solid var(--warm);padding:18px 22px;border-radius:2px;}
+  .kpi-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--soft);margin-bottom:6px;}
+  .kpi-value{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;color:var(--deep);line-height:1;}
+  .kpi-value.danger{color:var(--danger);}
+  .kpi-value.success{color:var(--success);}
+  .kpi-value.warning{color:var(--warning);}
+  .kpi-note{font-size:11px;color:var(--soft);margin-top:4px;}
+  .highlight-box{background:var(--deep);color:var(--gold-light);padding:18px 22px;border-radius:2px;}
+  .highlight-box .kpi-label{color:var(--soft);}
+  .highlight-box .kpi-value{color:var(--gold-light);}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mid);margin-bottom:5px;}
+  .field input,.field select{width:100%;padding:9px 13px;border:1px solid var(--warm);border-radius:2px;background:var(--cream);font-family:'DM Mono',monospace;font-size:12px;color:var(--deep);outline:none;transition:border-color 0.2s;}
+  .field input:focus,.field select:focus{border-color:var(--gold);background:white;}
+  .field .prefix{position:relative;}
+  .field .prefix input{padding-left:26px;}
+  .field .prefix::before{content:'$';position:absolute;left:11px;top:50%;transform:translateY(-50%);font-family:'DM Mono',monospace;font-size:11px;color:var(--soft);pointer-events:none;}
+  .field .suffix{position:relative;}
+  .field .suffix input{padding-right:26px;}
+  .field .suffix::after{content:'%';position:absolute;right:11px;top:50%;transform:translateY(-50%);font-family:'DM Mono',monospace;font-size:11px;color:var(--soft);pointer-events:none;}
+  .btn{background:var(--deep);color:var(--gold-light);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px 24px;border:none;cursor:pointer;transition:all 0.2s;border-radius:2px;}
+  .btn:hover{background:var(--gold);color:var(--deep);}
+  .btn-sm{padding:6px 14px;font-size:9px;}
+  .btn-outline{background:transparent;border:1px solid var(--gold);color:var(--gold);}
+  .btn-outline:hover{background:var(--gold);color:var(--deep);}
+  .btn-danger{background:transparent;border:1px solid var(--danger);color:var(--danger);}
+  .btn-danger:hover{background:var(--danger);color:white;}
+  .result-table{width:100%;border-collapse:collapse;margin-top:10px;}
+  .result-table th{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--soft);text-align:left;padding:8px 10px;border-bottom:1px solid var(--warm);}
+  .result-table td{padding:9px 10px;font-size:12px;border-bottom:1px solid var(--cream);font-family:'DM Mono',monospace;vertical-align:middle;}
+  .result-table tr:last-child td{border-bottom:none;}
+  .result-table .total-row td{font-weight:500;border-top:2px solid var(--gold-light);background:var(--cream);}
+  .result-table tr:hover td{background:#FDFAF6;}
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-family:'DM Mono',monospace;}
+  .pill.green{background:#E8F3E8;color:var(--success);}
+  .pill.red{background:#F3E8E8;color:var(--danger);}
+  .pill.yellow{background:#F3EEE0;color:var(--warning);}
+  .pill.blue{background:#E8EEF3;color:#5A7A9E;}
+  .divider{height:1px;background:linear-gradient(to right,var(--gold),transparent);margin:24px 0;}
+  .alert{padding:13px 16px;border-left:3px solid var(--gold);background:var(--warm);font-size:12px;color:var(--mid);margin-bottom:18px;line-height:1.6;}
+  .alert.red{border-color:var(--danger);background:#F9EDED;color:#7A3030;}
+  .alert.green{border-color:var(--success);background:#EDF3ED;color:#3A6B3E;}
+  .alert.blue{border-color:#5A7A9E;background:#EDF1F7;color:#3A5A7E;}
+  input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(--warm);border-radius:2px;outline:none;margin:8px 0;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;background:var(--gold);border-radius:50%;cursor:pointer;}
+  .progress-wrap{background:var(--warm);height:7px;border-radius:4px;overflow:hidden;margin:6px 0;}
+  .progress-fill{height:100%;border-radius:4px;transition:width 0.4s;}
+  .discount-bar{display:flex;align-items:center;gap:10px;margin:7px 0;}
+  .bar-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--mid);width:130px;flex-shrink:0;}
+  .bar-track{flex:1;background:var(--warm);height:5px;border-radius:3px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:3px;}
+  .bar-val{font-family:'DM Mono',monospace;font-size:10px;color:var(--deep);width:65px;text-align:right;}
+  .section-divider{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--soft);margin:18px 0 10px;padding-bottom:5px;border-bottom:1px solid var(--warm);}
+  /* INVENTORY SPECIFIC */
+  .cat-badge{display:inline-block;padding:2px 8px;border-radius:2px;font-size:9px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;}
+  .cat-cosmetico{background:#F3E8F0;color:#8B5A7A;}
+  .cat-farmaco{background:#E8EEF3;color:#5A7A9E;}
+  .cat-suplemento{background:#EDF3E8;color:#5A7E5A;}
+  .cat-desechable{background:#F3EEE0;color:#8B7A3A;}
+  .cat-reventa{background:#F3E8E8;color:#9E5A5A;}
+  .cat-mestetica{background:#EDE8F3;color:#6A5A9E;}
+  .stock-ok{color:var(--success);}
+  .stock-low{color:var(--warning);}
+  .stock-out{color:var(--danger);}
+  .receta-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--cream);border:1px solid var(--warm);border-radius:2px;margin-bottom:6px;font-family:'DM Mono',monospace;font-size:11px;}
+  .receta-item .ri-nombre{flex:1;}
+  .receta-item .ri-qty{width:60px;}
+  .receta-item .ri-costo{width:70px;color:var(--mid);}
+  .receta-item .ri-del{cursor:pointer;color:var(--danger);font-size:14px;padding:0 4px;}
+  .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(44,36,32,0.6);z-index:1000;align-items:center;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:white;border:1px solid var(--gold);border-radius:2px;padding:28px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+  .modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;margin-bottom:18px;color:var(--deep);}
+  .modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--warm);}
+  .month-selector{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:20px;}
+  .month-pill{font-family:"DM Mono",monospace;font-size:10px;letter-spacing:1px;padding:6px 14px;border:1px solid var(--warm);background:white;cursor:pointer;border-radius:2px;transition:all 0.2s;color:var(--mid);}
+  .month-pill:hover,.month-pill.active{background:var(--deep);color:var(--gold-light);border-color:var(--deep);}
+  .venta-row{display:grid;grid-template-columns:1fr 120px 100px 80px 80px 100px 36px;gap:8px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--cream);font-family:"DM Mono",monospace;font-size:11px;}
+  .venta-row:hover{background:var(--cream);}
+  .venta-row input,.venta-row select{padding:5px 8px;border:1px solid var(--warm);background:var(--cream);font-family:"DM Mono",monospace;font-size:11px;border-radius:2px;width:100%;outline:none;}
+  .venta-row input:focus,.venta-row select:focus{border-color:var(--gold);}
+  .venta-header{display:grid;grid-template-columns:1fr 120px 100px 80px 80px 100px 36px;gap:8px;padding:8px 12px;font-family:"DM Mono",monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--soft);border-bottom:1px solid var(--warm);}
+  .gasto-row{display:grid;grid-template-columns:90px 1fr 140px 120px 36px;gap:8px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--cream);font-family:"DM Mono",monospace;font-size:11px;}
+  .gasto-row:hover{background:var(--cream);}
+  .gasto-row input,.gasto-row select{padding:5px 8px;border:1px solid var(--warm);background:var(--cream);font-family:"DM Mono",monospace;font-size:11px;border-radius:2px;width:100%;outline:none;}
+  .gasto-header{display:grid;grid-template-columns:90px 1fr 140px 120px 36px;gap:8px;padding:8px 12px;font-family:"DM Mono",monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--soft);border-bottom:1px solid var(--warm);}
+  .chart-wrap{position:relative;height:280px;margin:10px 0;}
+  .tag-promo{display:inline-block;background:#F0EDF7;color:#6A5A9E;padding:1px 7px;border-radius:2px;font-size:9px;font-family:"DM Mono",monospace;}
+  @media(max-width:768px){.header{padding:18px 20px;}.tabs{padding:0 14px;}.main{padding:18px 20px;}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}.modal{padding:20px;}}
+</style>
+</head>
+<body>
+
+<!-- MODAL PRODUCTO -->
+<div class="modal-overlay" id="modal-producto">
+  <div class="modal">
+    <div class="modal-title" id="modal-prod-title">Agregar Producto</div>
+    <input type="hidden" id="modal-prod-id" value="">
+    <div class="field"><label>Nombre del producto</label><input type="text" id="mp-nombre" placeholder="Ej: Suero Vitamina C"></div>
+    <div class="field"><label>Categoría</label>
+      <select id="mp-cat">
+        <option value="cosmetico">Cosmético / Facial</option>
+        <option value="mestetica">Medicina Estética (inyectables, toxinas, bioestimuladores)</option>
+        <option value="farmaco">Medicamento / Fármaco</option>
+        <option value="suplemento">Suplemento / Nutracéutico</option>
+        <option value="desechable">Insumo Desechable</option>
+        <option value="reventa">Producto de Reventa</option>
+      </select>
+    </div>
+    <div class="grid-2" style="gap:12px;">
+      <div class="field"><label>Costo unitario</label><div class="prefix"><input type="number" id="mp-costo" value="0" min="0"></div></div>
+      <div class="field"><label>Precio venta (si aplica)</label><div class="prefix"><input type="number" id="mp-precio-venta" value="0" min="0"></div></div>
+    </div>
+    <div class="grid-2" style="gap:12px;">
+      <div class="field"><label>Unidad de medida</label>
+        <select id="mp-unidad">
+          <option value="pieza">Pieza / Unidad</option>
+          <option value="ml">ml</option>
+          <option value="g">gramos</option>
+          <option value="ampolleta">Ampolleta</option>
+          <option value="caja">Caja</option>
+          <option value="frasco">Frasco</option>
+          <option value="jeringa">Jeringa</option>
+          <option value="par">Par</option>
+        </select>
+      </div>
+      <div class="field"><label>Stock actual</label><input type="number" id="mp-stock" value="0" min="0"></div>
+    </div>
+    <div class="field"><label>Stock mínimo (alerta)</label><input type="number" id="mp-stock-min" value="5" min="0"></div>
+    <div class="field" id="mp-rendimiento-wrap">
+      <label>Rendimiento — ¿cuántas aplicaciones da una unidad? <span style="color:var(--soft);font-size:9px;">(opcional · ej: frasco botox = 4 aplicaciones)</span></label>
+      <input type="number" id="mp-rendimiento" value="1" min="1" step="1">
+      <div style="font-size:10px;color:var(--gold);margin-top:4px;font-family:'DM Mono',monospace;" id="mp-costo-aplicacion">Costo por aplicación: —</div>
+    </div>
+    <div class="field"><label>Notas (opcional)</label><input type="text" id="mp-notas" placeholder="Proveedor, presentación, etc."></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="cerrarModal('modal-producto')">Cancelar</button>
+      <button class="btn btn-sm" onclick="guardarProducto()">Guardar Producto</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RECETA -->
+<div class="modal-overlay" id="modal-receta">
+  <div class="modal">
+    <div class="modal-title" id="modal-rec-title">Receta del Servicio</div>
+    <input type="hidden" id="modal-rec-servicio" value="">
+    <div class="alert blue" style="margin-bottom:14px;">Define qué productos y cantidades se usan en este servicio. El costo se calculará automáticamente.</div>
+    <div class="field">
+      <label>Agregar producto a la receta</label>
+      <div style="display:flex;gap:8px;align-items:flex-end;">
+        <div style="flex:1;"><select id="rec-prod-select"></select></div>
+        <div style="width:90px;"><input type="number" id="rec-prod-qty" value="1" min="0.01" step="0.01" placeholder="Cant."></div>
+        <button class="btn btn-sm btn-outline" onclick="agregarAReceta()">+ Agregar</button>
+      </div>
+    </div>
+    <div class="section-divider">Costo variable / materiales generales</div>
+    <div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:14px;">
+      <div style="flex:1;" class="field" style="margin-bottom:0;">
+        <label>Costo estimado de materiales variables <span style="color:var(--soft);font-size:9px;">(guantes, algodón, material que varía por paciente)</span></label>
+        <div class="prefix"><input type="number" id="rec-costo-variable" value="0" min="0" oninput="renderRecetaItems()" placeholder="0"></div>
+      </div>
+    </div>
+    <div class="section-divider">Productos específicos de la receta</div>
+    <div id="receta-items-list"></div>
+    <div style="margin-top:12px;padding:10px 14px;background:var(--cream);border:1px solid var(--warm);border-radius:2px;">
+      <div class="kpi-label">Costo total de insumos</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:var(--deep);" id="receta-costo-total">$0</div>
+      <div style="font-size:10px;color:var(--soft);font-family:'DM Mono',monospace;margin-top:4px;" id="receta-var-note"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="cerrarModal('modal-receta')">Cerrar</button>
+      <button class="btn btn-sm" onclick="guardarReceta()">Guardar Receta</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SERVICIO CATALOGO -->
+<div class="modal-overlay" id="modal-servicio-cat">
+  <div class="modal">
+    <div class="modal-title" id="modal-svc-title">Agregar Servicio</div>
+    <input type="hidden" id="modal-svc-id" value="">
+    <div class="field"><label>Nombre del servicio</label><input type="text" id="ms-nombre" placeholder="Ej: Hydrafacial"></div>
+    <div class="field"><label>Área</label>
+      <select id="ms-area">
+        <option value="cosmiatra">Cabina Cosmiatra</option>
+        <option value="estetico">Consultorio Médico Estético</option>
+        <option value="nutricion">Consultorio Nutrición</option>
+      </select>
+    </div>
+    <div class="grid-2" style="gap:12px;">
+      <div class="field"><label>Precio de venta</label><div class="prefix"><input type="number" id="ms-precio" value="0"></div></div>
+      <div class="field"><label>Duración (min)</label><input type="number" id="ms-duracion" value="60"></div>
+    </div>
+    <div class="field"><label>Equipo utilizado</label>
+      <select id="ms-equipo">
+        <option value="0">Sin equipo / manual</option>
+        <option value="hydra">Hydrafacial</option>
+        <option value="radio">Radiofrecuencia</option>
+        <option value="bio">Bioelectroestimulación</option>
+        <option value="preso">Presoterapia</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="cerrarModal('modal-servicio-cat')">Cancelar</button>
+      <button class="btn btn-sm" onclick="guardarServicioCat()">Guardar Servicio</button>
+    </div>
+  </div>
+</div>
+
+<div class="header">
+  <div>
+    <div class="brand-name">Aestheva</div>
+    <div class="brand-sub">Calculadora Financiera · v3 con Inventario</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div id="save-indicator" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--soft);letter-spacing:1px;transition:all 0.3s;"></div>
+    <div class="header-badge">Interlomas · 2025</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showPanel('dashboard',this)">Dashboard</div>
+  <div class="tab" onclick="showPanel('servicio',this)">Costo por Servicio</div>
+  <div class="tab" onclick="showPanel('inventario',this)">📦 Inventario</div>
+  <div class="tab" onclick="showPanel('recetas',this)">🧪 Recetas</div>
+  <div class="tab" onclick="showPanel('descuento',this)">Simulador Descuentos</div>
+  <div class="tab" onclick="showPanel('equilibrio',this)">Punto de Equilibrio</div>
+  <div class="tab" onclick="showPanel('capacidad',this)">Capacidad</div>
+  <div class="tab" onclick="showPanel('depreciacion',this)">Depreciación</div>
+  <div class="tab" onclick="showPanel('ventas',this)">📈 Ventas del Mes</div>
+  <div class="tab" onclick="showPanel('gastos',this)">💰 Gastos del Mes</div>
+  <div class="tab" onclick="showPanel('anual',this)">📊 Análisis Anual</div>
+</div>
+<div style="background:var(--deep);padding:6px 40px;border-bottom:1px solid rgba(201,169,110,0.15);display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+  <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--soft);text-transform:uppercase;">Datos:</span>
+  <button onclick="exportarDatos()" style="background:transparent;border:1px solid rgba(201,169,110,0.4);color:var(--gold-light);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;padding:4px 12px;cursor:pointer;border-radius:2px;text-transform:uppercase;" onmouseover="this.style.background='rgba(201,169,110,0.15)'" onmouseout="this.style.background='transparent'">⬇ Exportar Respaldo</button>
+  <label style="background:transparent;border:1px solid rgba(201,169,110,0.4);color:var(--gold-light);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;padding:4px 12px;cursor:pointer;border-radius:2px;text-transform:uppercase;" onmouseover="this.style.background='rgba(201,169,110,0.15)'" onmouseout="this.style.background='transparent'">⬆ Importar Respaldo<input type="file" accept=".json" onchange="importarDatos(event)" style="display:none;"></label>
+  <span id="ultimo-guardado" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--soft);margin-left:4px;"></span>
+</div>
+
+<div class="main">
+
+<!-- ══════════════════════════════════════════════
+     DASHBOARD
+══════════════════════════════════════════════ -->
+<div class="panel active" id="panel-dashboard">
+  <div class="section-title">Resumen General</div>
+  <div class="section-sub">Costos reales incluyendo depreciación · Abril 2025</div>
+
+  <div class="grid-4" style="margin-bottom:18px;">
+    <div class="highlight-box">
+      <div class="kpi-label">Costos Fijos Reales</div>
+      <div class="kpi-value">$260,000</div>
+      <div style="font-size:10px;color:var(--soft);margin-top:4px;">Incl. $16,500 dep. + $17,000 fin. equipos</div>
+    </div>
+    <div class="kpi-box"><div class="kpi-label">Ventas Abril</div><div class="kpi-value warning">$162,020</div><div class="kpi-note">Mes más reciente</div></div>
+    <div class="kpi-box"><div class="kpi-label">Déficit Real Abril</div><div class="kpi-value danger">-$97,980</div><div class="kpi-note">vs. costos fijos reales</div></div>
+    <div class="kpi-box"><div class="kpi-label">Alertas de Inventario</div><div class="kpi-value warning" id="dash-alertas-inv">0</div><div class="kpi-note">Productos bajo mínimo</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Desglose Costos Fijos</div>
+      <table class="result-table">
+        <tr><th>Concepto</th><th>Monto</th><th>%</th></tr>
+        <tr><td>Renta + servicios</td><td>$89,500</td><td><span class="pill red">36.8%</span></td></tr>
+        <tr><td>Préstamos</td><td>$60,000</td><td><span class="pill yellow">24.7%</span></td></tr>
+        <tr><td>Nóminas fijas</td><td>$52,000</td><td><span class="pill yellow">21.4%</span></td></tr>
+        <tr><td>Marketing (nómina+Meta)</td><td>$20,000</td><td><span class="pill green">8.2%</span></td></tr>
+        <tr><td>Contabilidad + impresa</td><td>$5,000</td><td><span class="pill green">2.1%</span></td></tr>
+        <tr><td style="color:var(--gold);">⚙️ Depreciación equipos</td><td style="color:var(--gold);">$16,500</td><td><span class="pill yellow">6.4%</span></td></tr>
+        <tr><td style="color:var(--rose);">💳 Financiamiento equipos</td><td style="color:var(--rose);">$17,000</td><td><span class="pill yellow">6.5%</span></td></tr>
+        <tr class="total-row"><td><strong>TOTAL REAL</strong></td><td><strong>$260,000</strong></td><td>100%</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Ventas Abril por Profesional</div>
+      <div style="margin-bottom:10px;">
+        <div class="discount-bar"><div class="bar-label">Dr. Antonio</div><div class="bar-track"><div class="bar-fill" style="width:46.8%;background:var(--rose);"></div></div><div class="bar-val">$75,800</div></div>
+        <div class="discount-bar"><div class="bar-label">Yiss (cosmiatra)</div><div class="bar-track"><div class="bar-fill" style="width:33%;background:var(--gold);"></div></div><div class="bar-val">$53,500</div></div>
+        <div class="discount-bar"><div class="bar-label">Dr. Victor</div><div class="bar-track"><div class="bar-fill" style="width:20.2%;background:var(--success);"></div></div><div class="bar-val">$32,720</div></div>
+      </div>
+      <div class="section-divider">inventario — resumen rápido</div>
+      <div id="dash-inv-resumen"><div style="font-size:12px;color:var(--soft);">Agrega productos en la pestaña Inventario.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     COSTO POR SERVICIO
+══════════════════════════════════════════════ -->
+<div class="panel" id="panel-servicio">
+  <div class="section-title">Costo Real por Servicio</div>
+  <div class="section-sub">Insumos desde receta o manual · depreciación · comisiones · banco</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Parámetros del Servicio</div>
+
+      <div class="field">
+        <label>Cargar desde catálogo de servicios</label>
+        <select id="srv-catalogo" onchange="cargarServicioCatalogo()">
+          <option value="">— Seleccionar servicio guardado —</option>
+        </select>
+      </div>
+      <div style="text-align:center;font-family:'DM Mono',monospace;font-size:9px;color:var(--soft);letter-spacing:2px;margin:6px 0 14px;">— O CAPTURA MANUALMENTE —</div>
+
+      <div class="field"><label>Nombre del servicio</label><input type="text" id="srv-nombre" value="Hydrafacial"></div>
+      <div class="field"><label>Área</label>
+        <select id="srv-area">
+          <option value="cosmiatra">Cabina Cosmiatra</option>
+          <option value="estetico">Consultorio Médico Estético</option>
+          <option value="nutricion">Consultorio Nutrición</option>
+        </select>
+      </div>
+      <div class="field"><label>Precio de venta</label><div class="prefix"><input type="number" id="srv-precio" value="1500"></div></div>
+
+      <div class="section-divider">Costo de insumos</div>
+      <div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:10px;">
+        <div style="flex:1;" class="field" style="margin-bottom:0;">
+          <label>Desde receta del servicio</label>
+          <input type="text" id="srv-costo-receta" value="Sin receta" readonly style="background:var(--warm);cursor:default;">
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="usarCostoReceta()" style="margin-bottom:0;height:36px;">Usar</button>
+      </div>
+      <div class="field"><label>O ingresa manualmente</label><div class="prefix"><input type="number" id="srv-insumo" value="150"></div></div>
+
+      <div class="field"><label>Duración (minutos)</label><input type="number" id="srv-duracion" value="60"></div>
+      <div class="field"><label>Tipo de pago</label>
+        <select id="srv-pago">
+          <option value="0">Efectivo / Transferencia (0%)</option>
+          <option value="0.03">Tarjeta contado (3%)</option>
+          <option value="0.09">3 MSI (9%)</option>
+        </select>
+      </div>
+      <div class="field"><label>¿Es venta de paquete?</label>
+        <select id="srv-paquete">
+          <option value="no">No — servicio suelto</option>
+          <option value="si">Sí — comisión 10% cosmiatra</option>
+        </select>
+      </div>
+
+      <div class="section-divider">Equipo / Aparatología</div>
+      <div class="field"><label>Equipo utilizado</label>
+        <select id="srv-equipo" onchange="document.getElementById('srv-equipo-custom-wrap').style.display=this.value==='custom'?'block':'none'">
+          <option value="0">Sin equipo / manual</option>
+          <option value="hydra">Hydrafacial</option>
+          <option value="radio">Radiofrecuencia</option>
+          <option value="bio">Bioelectroestimulación</option>
+          <option value="preso">Presoterapia</option>
+          <option value="custom">Personalizado…</option>
+        </select>
+      </div>
+      <div class="field" id="srv-equipo-custom-wrap" style="display:none;">
+        <label>Depreciación por sesión</label><div class="prefix"><input type="number" id="srv-equipo-custom" value="0"></div>
+      </div>
+
+      <div class="section-divider">Comisionistas adicionales</div>
+      <div class="grid-2" style="gap:12px;">
+        <div class="field"><label>Comisionista 1 (%)</label><div class="suffix"><input type="number" id="srv-com1" value="0" min="0" max="50"></div></div>
+        <div class="field"><label>Comisionista 2 (%)</label><div class="suffix"><input type="number" id="srv-com2" value="0" min="0" max="50"></div></div>
+      </div>
+
+      <button class="btn" onclick="calcularServicio()" style="width:100%;margin-top:8px;">Calcular Margen Real</button>
+    </div>
+
+    <div id="srv-result" class="card">
+      <div class="card-title">Resultado</div>
+      <div class="alert">Configura los parámetros y presiona <strong>Calcular Margen Real</strong>.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     INVENTARIO
+══════════════════════════════════════════════ -->
+<div class="panel" id="panel-inventario">
+  <div class="section-title">Inventario de Productos</div>
+  <div class="section-sub">Registra todos tus productos con costo, stock y alertas de reposición</div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-sm" onclick="abrirModalProducto()">+ Nuevo Producto</button>
+      <select id="inv-filtro-cat" onchange="renderInventario()" style="font-family:'DM Mono',monospace;font-size:10px;padding:8px 12px;border:1px solid var(--warm);background:var(--cream);border-radius:2px;color:var(--deep);">
+        <option value="">Todas las categorías</option>
+        <option value="cosmetico">Cosméticos</option>
+        <option value="mestetica">Medicina Estética</option>
+      <option value="farmaco">Fármacos</option>
+        <option value="suplemento">Suplementos</option>
+        <option value="desechable">Desechables</option>
+        <option value="reventa">Reventa</option>
+      </select>
+      <select id="inv-filtro-stock" onchange="renderInventario()" style="font-family:'DM Mono',monospace;font-size:10px;padding:8px 12px;border:1px solid var(--warm);background:var(--cream);border-radius:2px;color:var(--deep);">
+        <option value="">Todo el stock</option>
+        <option value="bajo">Solo stock bajo</option>
+        <option value="agotado">Solo agotados</option>
+      </select>
+    </div>
+    <div id="inv-stats" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--soft);"></div>
+  </div>
+
+  <div class="card" style="padding:0;">
+    <table class="result-table" id="inv-tabla">
+      <tr>
+        <th>Producto</th><th>Categoría</th><th>Costo unit.</th><th>Precio venta</th>
+        <th>Unidad</th><th>Stock</th><th>Mínimo</th><th>Estado</th><th>Acciones</th>
+      </tr>
+    </table>
+    <div id="inv-empty" style="padding:32px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--soft);">
+      No hay productos registrados. Haz clic en <strong>+ Nuevo Producto</strong> para comenzar.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="card">
+    <div class="card-title">Productos de Ejemplo para Comenzar</div>
+    <p style="font-size:12px;color:var(--mid);margin-bottom:12px;">Puedes cargar estos ejemplos para ver cómo funciona el módulo.</p>
+    <button class="btn btn-outline btn-sm" onclick="cargarEjemplos()">Cargar productos de ejemplo</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     RECETAS
+══════════════════════════════════════════════ -->
+<div class="panel" id="panel-recetas">
+  <div class="section-title">Recetas por Servicio</div>
+  <div class="section-sub">Define qué productos usa cada servicio para calcular el costo de insumos automáticamente</div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+    <button class="btn btn-sm" onclick="abrirModalServicioCat()">+ Nuevo Servicio</button>
+    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--soft);" id="rec-stats"></span>
+  </div>
+
+  <div id="recetas-grid" class="grid-2"></div>
+
+  <div class="alert blue" style="margin-top:18px;">
+    💡 <strong>Cómo funciona:</strong> Crea un servicio, luego haz clic en <strong>Editar Receta</strong> para asignarle los productos que usa. El costo calculado aparecerá automáticamente en la pestaña <strong>Costo por Servicio</strong>.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     DESCUENTOS
+══════════════════════════════════════════════ -->
+<div class="panel" id="panel-descuento">
+  <div class="section-title">Simulador de Descuentos</div>
+  <div class="section-sub">¿Hasta cuánto puedes bajar sin perder? · Con depreciación y comisionistas</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Configura el escenario</div>
+      <div class="field"><label>Servicio</label>
+        <select id="desc-tipo" onchange="actualizarDesc()">
+          <option value="1500|69|cosmiatra">Hydrafacial — $1,500</option>
+          <option value="1500|139|cosmiatra">Radiofrecuencia — $1,500</option>
+          <option value="3500|347|cosmiatra">Bioelectroestimulación — $3,500</option>
+          <option value="450|8|cosmiatra">Presoterapia — $450</option>
+          <option value="1200|0|cosmiatra">Masaje + Facial — $1,200</option>
+          <option value="4800|0|estetico">Botox — $4,800</option>
+          <option value="7000|0|estetico">Enzimas — $7,000</option>
+          <option value="15000|347|cosmiatra">Paquete Reductivo — $15,000</option>
+          <option value="500|0|nutricion">Consulta Nutrición — $500</option>
+          <option value="custom|0|cosmiatra">Precio personalizado…</option>
+        </select>
+      </div>
+      <div id="desc-custom-wrap" style="display:none;" class="field">
+        <label>Precio base</label><div class="prefix"><input type="number" id="desc-custom-precio" value="1000" oninput="actualizarDesc()"></div>
+      </div>
+      <div class="field"><label>Costo insumos</label><div class="prefix"><input type="number" id="desc-insumo" value="180" oninput="actualizarDesc()"></div></div>
+      <div class="field"><label>Tipo de pago</label>
+        <select id="desc-pago" onchange="actualizarDesc()">
+          <option value="0">Efectivo / Transferencia (0%)</option>
+          <option value="0.03">Tarjeta contado (3%)</option>
+          <option value="0.09">3 MSI (9%)</option>
+        </select>
+      </div>
+      <div class="section-divider">Comisionistas adicionales</div>
+      <div class="grid-2" style="gap:12px;">
+        <div class="field"><label>Comisionista 1 (%)</label><div class="suffix"><input type="number" id="desc-com1" value="0" min="0" max="50" oninput="actualizarDesc()"></div></div>
+        <div class="field"><label>Comisionista 2 (%)</label><div class="suffix"><input type="number" id="desc-com2" value="0" min="0" max="50" oninput="actualizarDesc()"></div></div>
+      </div>
+      <div class="field" style="margin-top:8px;">
+        <label>Descuento: <strong id="desc-pct-label">0%</strong></label>
+        <input type="range" id="desc-slider" min="0" max="50" value="0" oninput="moverSlider(this.value)">
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--soft);font-family:'DM Mono',monospace;"><span>0%</span><span>10%</span><span>20%</span><span>30%</span><span>40%</span><span>50%</span></div>
+      </div>
+    </div>
+    <div class="card"><div class="card-title">Resultado</div><div id="desc-output"><div class="alert">Ajusta el slider para ver el impacto en tiempo real.</div></div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="card">
+    <div class="card-title">Reglas de Oro</div>
+    <div class="grid-2">
+      <table class="result-table">
+        <tr><th>Tipo de pago</th><th>Descuento máximo</th></tr>
+        <tr><td>Efectivo / transferencia</td><td><span class="pill green">Hasta 25%</span></td></tr>
+        <tr><td>Tarjeta contado</td><td><span class="pill yellow">Hasta 18%</span></td></tr>
+        <tr><td>3 MSI</td><td><span class="pill red">Máx 8%</span></td></tr>
+        <tr><td>Con 2 comisionistas extra</td><td><span class="pill red">Reduce 5-10% más</span></td></tr>
+      </table>
+      <div class="alert green">✅ En paquetes de $10k+ puedes dar hasta 15-20% y aún tener margen positivo. En servicios sueltos de bajo precio (presoterapia, consulta nutrición), cualquier descuento ya te pone en negativo.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     EQUILIBRIO
+══════════════════════════════════════════════ -->
+<div class="panel" id="panel-equilibrio">
+  <div class="section-title">Punto de Equilibrio</div>
+  <div class="section-sub">Incluyendo depreciación real de equipos · Base $260,000/mes</div>
+  <div class="grid-4" style="margin-bottom:20px;">
+    <div class="highlight-box"><div class="kpi-label">Costos Fijos Reales</div><div class="kpi-value">$260,000</div></div>
+    <div class="kpi-box"><div class="kpi-label">+ Variables Est.</div><div class="kpi-value warning" id="eq-variables">$19,440</div></div>
+    <div class="kpi-box"><div class="kpi-label">Meta Mínima</div><div class="kpi-value danger" id="eq-meta">$263,043</div></div>
+    <div class="kpi-box"><div class="kpi-label">Ventas Diarias Necesarias</div><div class="kpi-value danger" id="eq-diario">$11,437</div></div>
+  </div>
+  <div class="card" style="margin-bottom:18px;">
+    <div class="card-title">Variables estimadas</div>
+    <div class="grid-3">
+      <div class="field"><label>% Insumos promedio</label><div class="suffix"><input type="number" id="eq-pct-insumo" value="5" oninput="calcEquilibrio()"></div></div>
+      <div class="field"><label>% Comisiones proveedores</label><div class="suffix"><input type="number" id="eq-pct-comision" value="3" oninput="calcEquilibrio()"></div></div>
+      <div class="field"><label>% Comisión banco</label><div class="suffix"><input type="number" id="eq-pct-banco" value="2" oninput="calcEquilibrio()"></div></div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Escenarios</div>
+      <table class="result-table">
+        <tr><th>Escenario</th><th>Servicios/día</th><th>Ventas/mes</th><th>Estado</th></tr>
+        <tr><td>Abril real</td><td>~3</td><td>$162,020</td><td><span class="pill red">Déficit $98k</span></td></tr>
+        <tr><td>Punto equilibrio</td><td>~4.6</td><td>$263,043</td><td><span class="pill yellow">Break even</span></td></tr>
+        <tr><td>+20% sobre equilibrio</td><td>~5.5</td><td>$315,652</td><td><span class="pill green">+$52k</span></td></tr>
+        <tr><td>Capacidad máxima</td><td>~8-10</td><td>$490,000+</td><td><span class="pill green">Óptimo</span></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Simulador de Meta</div>
+      <div class="field"><label>Utilidad mensual deseada</label><div class="prefix"><input type="number" id="eq-utilidad" value="30000" oninput="calcMeta()"></div></div>
+      <div style="margin-top:14px;">
+        <div class="kpi-label">Meta necesaria</div><div class="kpi-value success" id="eq-meta-total">$295,652</div>
+        <div style="margin-top:10px;"><div class="kpi-label">Servicios/día (ticket $2,492)</div><div class="kpi-value" id="eq-servicios-dia" style="font-size:22px;">~5.2</div></div>
+        <div style="margin-top:14px;">
+          <div class="kpi-label">Progreso Abril vs. meta</div>
+          <div class="progress-wrap"><div class="progress-fill" id="eq-progreso" style="width:55%;background:var(--danger);"></div></div>
+          <div style="font-size:10px;color:var(--soft);font-family:'DM Mono',monospace;margin-top:4px;" id="eq-pct-alcanzado">Abril cubrió el 55% de esta meta</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     CAPACIDAD
+══════════════════════════════════════════════ -->
+<div class="panel" id="panel-capacidad">
+  <div class="section-title">Capacidad Instalada</div>
+  <div class="section-sub">Horas disponibles por espacio y potencial de facturación mensual</div>
+  <div class="grid-3" style="margin-bottom:20px;">
+    <div class="kpi-box"><div class="kpi-label">Horas L-V / semana</div><div class="kpi-value">40 hrs</div></div>
+    <div class="kpi-box"><div class="kpi-label">Horas Sábado / semana</div><div class="kpi-value">5 hrs</div></div>
+    <div class="kpi-box"><div class="kpi-label">Total hrs / semana</div><div class="kpi-value success">45 hrs</div></div>
+  </div>
+  <div class="card" style="margin-bottom:18px;">
+    <div class="card-title">Duración de Servicios</div>
+    <div class="grid-3">
+      <div class="field"><label>Consulta médica (min)</label><input type="number" id="cap-medico" value="60" oninput="calcCapacidad()"></div>
+      <div class="field"><label>Servicio cosmiatra (min)</label><input type="number" id="cap-cosmiatra" value="60" oninput="calcCapacidad()"></div>
+      <div class="field"><label>Consulta nutrición (min)</label><input type="number" id="cap-nutricion" value="45" oninput="calcCapacidad()"></div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Capacidad por Espacio / Mes</div>
+      <table class="result-table" id="cap-tabla"></table>
+      <div class="alert" style="margin-top:12px;margin-bottom:0;" id="cap-alerta"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Uso Real Abril vs. Capacidad</div>
+      <div style="margin-bottom:12px;"><div class="kpi-label">Cosmiatra — $53,500 / ~$180k cap.</div><div class="progress-wrap"><div class="progress-fill" style="width:29.7%;background:var(--gold);"></div></div><div style="font-size:10px;color:var(--soft);font-family:'DM Mono',monospace;">29.7%</div></div>
+      <div style="margin-bottom:12px;"><div class="kpi-label">Dr. Antonio — $75,800 / ~$240k cap.</div><div class="progress-wrap"><div class="progress-fill" style="width:31.6%;background:var(--rose);"></div></div><div style="font-size:10px;color:var(--soft);font-family:'DM Mono',monospace;">31.6%</div></div>
+      <div style="margin-bottom:12px;"><div class="kpi-label">Dr. Victor — $32,720 / ~$60k cap.</div><div class="progress-wrap"><div class="progress-fill" style="width:54.5%;background:var(--success);"></div></div><div style="font-size:10px;color:var(--soft);font-family:'DM Mono',monospace;">54.5%</div></div>
+      <div class="alert green">✅ No necesitas más personal — necesitas más clientes. Meta realista: 70% de capacidad = ~$336k/mes.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     DEPRECIACIÓN
+══════════════════════════════════════════════ -->
+<div class="panel" id="panel-depreciacion">
+  <div class="section-title">Depreciación de Equipos</div>
+  <div class="section-sub">Configura sesiones mensuales para calcular costo real por uso · Vida útil 24 meses</div>
+  <div class="alert">💡 A más sesiones por mes, menor costo por sesión. Maximiza el uso de cada equipo para diluir la inversión.</div>
+  <div class="grid-2">
+    <div class="card"><div class="card-title">Hydrafacial — $40,000</div><div class="field"><label>Sesiones / mes</label><input type="number" id="dep-hydra-ses" value="24" oninput="calcDepr('hydra',40000,this.value)"></div><div id="dep-hydra-result"></div></div>
+    <div class="card"><div class="card-title">Radiofrecuencia — $100,000</div><div class="field"><label>Sesiones / mes</label><input type="number" id="dep-radio-ses" value="30" oninput="calcDepr('radio',100000,this.value)"></div><div id="dep-radio-result"></div></div>
+    <div class="card"><div class="card-title">Bioelectroestimulación — $250,000</div><div class="field"><label>Sesiones / mes</label><input type="number" id="dep-bio-ses" value="30" oninput="calcDepr('bio',250000,this.value)"></div><div id="dep-bio-result"></div></div>
+    <div class="card"><div class="card-title">Presoterapia — $6,000</div><div class="field"><label>Sesiones / mes</label><input type="number" id="dep-preso-ses" value="30" oninput="calcDepr('preso',6000,this.value)"></div><div id="dep-preso-result"></div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="card"><div class="card-title">Resumen Depreciación por Sesión</div><table class="result-table" id="depr-resumen"></table></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     VENTAS DEL MES
+══════════════════════════════════════════════ -->
+<div class="panel" id="panel-ventas">
+  <div class="section-title">Registro de Ventas por Servicio</div>
+  <div class="section-sub">Captura cada venta para validar márgenes reales y comparar mes a mes</div>
+
+  <div class="month-selector">
+    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--soft);letter-spacing:2px;text-transform:uppercase;">Mes activo:</span>
+    <select id="ventas-mes-sel" onchange="cambiarMesVentas()" style="font-family:'DM Mono',monospace;font-size:11px;padding:7px 12px;border:1px solid var(--warm);background:var(--cream);border-radius:2px;color:var(--deep);outline:none;">
+      <option value="2025-01">Enero 2025</option><option value="2025-02">Febrero 2025</option>
+      <option value="2025-03">Marzo 2025</option><option value="2025-04" selected>Abril 2025</option>
+      <option value="2025-05">Mayo 2025</option><option value="2025-06">Junio 2025</option>
+      <option value="2025-07">Julio 2025</option><option value="2025-08">Agosto 2025</option>
+      <option value="2025-09">Septiembre 2025</option><option value="2025-10">Octubre 2025</option>
+      <option value="2025-11">Noviembre 2025</option><option value="2025-12">Diciembre 2025</option>
+    </select>
+    <button class="btn btn-sm" onclick="agregarVenta()">+ Agregar Venta</button>
+    <button class="btn btn-sm btn-outline" onclick="cargarVentasAbril()">Cargar Abril (ejemplo)</button>
+  </div>
+
+  <!-- KPIs del mes -->
+  <div class="grid-4" style="margin-bottom:18px;">
+    <div class="kpi-box"><div class="kpi-label">Ventas del mes</div><div class="kpi-value success" id="v-total-mes">$0</div></div>
+    <div class="kpi-box"><div class="kpi-label">Costo insumos est.</div><div class="kpi-value warning" id="v-costo-mes">$0</div></div>
+    <div class="kpi-box"><div class="kpi-label">Comisiones pagadas</div><div class="kpi-value warning" id="v-comisiones-mes">$0</div></div>
+    <div class="kpi-box"><div class="kpi-label">Margen bruto</div><div class="kpi-value" id="v-margen-mes">$0</div></div>
+  </div>
+
+  <!-- Tabla ventas -->
+  <div class="card" style="padding:0;overflow-x:auto;">
+    <div class="venta-header">
+      <span>Servicio / Descripción</span><span>Profesional</span><span>Precio</span>
+      <span>Pago</span><span>Promo</span><span>Margen est.</span><span></span>
+    </div>
+    <div id="ventas-lista"></div>
+    <div style="padding:12px 14px;border-top:2px solid var(--gold-light);background:var(--cream);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--soft);" id="v-conteo">0 registros</div>
+      <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--deep);">Total: <strong id="v-total-footer">$0</strong></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Validación por profesional -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Validación por Profesional</div>
+      <div id="v-por-profesional"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Validación vs Punto de Equilibrio</div>
+      <div id="v-vs-equilibrio"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     GASTOS DEL MES
+══════════════════════════════════════════════ -->
+<div class="panel" id="panel-gastos">
+  <div class="section-title">Registro de Gastos Mensuales</div>
+  <div class="section-sub">Todos los egresos reales del mes — fijos, variables y sorpresas</div>
+
+  <div class="month-selector">
+    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--soft);letter-spacing:2px;text-transform:uppercase;">Mes activo:</span>
+    <select id="gastos-mes-sel" onchange="cambiarMesGastos()" style="font-family:'DM Mono',monospace;font-size:11px;padding:7px 12px;border:1px solid var(--warm);background:var(--cream);border-radius:2px;color:var(--deep);outline:none;">
+      <option value="2025-01">Enero 2025</option><option value="2025-02">Febrero 2025</option>
+      <option value="2025-03">Marzo 2025</option><option value="2025-04" selected>Abril 2025</option>
+      <option value="2025-05">Mayo 2025</option><option value="2025-06">Junio 2025</option>
+      <option value="2025-07">Julio 2025</option><option value="2025-08">Agosto 2025</option>
+      <option value="2025-09">Septiembre 2025</option><option value="2025-10">Octubre 2025</option>
+      <option value="2025-11">Noviembre 2025</option><option value="2025-12">Diciembre 2025</option>
+    </select>
+    <button class="btn btn-sm" onclick="agregarGasto()">+ Agregar Gasto</button>
+    <button class="btn btn-sm btn-outline" onclick="cargarGastosBase()">Cargar Gastos Fijos Base</button>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:18px;">
+    <div class="kpi-box"><div class="kpi-label">Total gastos mes</div><div class="kpi-value danger" id="g-total-mes">$0</div></div>
+    <div class="kpi-box"><div class="kpi-label">Gastos fijos</div><div class="kpi-value" id="g-fijos-mes">$0</div></div>
+    <div class="kpi-box"><div class="kpi-label">Gastos variables</div><div class="kpi-value warning" id="g-variables-mes">$0</div></div>
+    <div class="kpi-box"><div class="kpi-label">vs. Presupuesto $260k</div><div class="kpi-value" id="g-vs-presupuesto">—</div></div>
+  </div>
+
+  <div class="card" style="padding:0;overflow-x:auto;">
+    <div class="gasto-header"><span>Fecha</span><span>Concepto</span><span>Categoría</span><span>Monto</span><span></span></div>
+    <div id="gastos-lista"></div>
+    <div style="padding:12px 14px;border-top:2px solid var(--gold-light);background:var(--cream);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--soft);" id="g-conteo">0 registros</div>
+      <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--deep);">Total: <strong id="g-total-footer">$0</strong></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Gastos por Categoría</div>
+      <div id="g-por-categoria"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Rentabilidad Real del Mes</div>
+      <div id="g-rentabilidad"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     ANÁLISIS ANUAL
+══════════════════════════════════════════════ -->
+<div class="panel" id="panel-anual">
+  <div class="section-title">Análisis Anual 2025</div>
+  <div class="section-sub">Tendencias mes a mes · Ventas vs Gastos vs Punto de Equilibrio</div>
+
+  <div class="grid-4" style="margin-bottom:18px;">
+    <div class="highlight-box"><div class="kpi-label">Ventas acumuladas</div><div class="kpi-value" id="an-ventas-acum">$0</div></div>
+    <div class="kpi-box"><div class="kpi-label">Gastos acumulados</div><div class="kpi-value danger" id="an-gastos-acum">$0</div></div>
+    <div class="kpi-box"><div class="kpi-label">Resultado acumulado</div><div class="kpi-value" id="an-resultado-acum">$0</div></div>
+    <div class="kpi-box"><div class="kpi-label">Meses con datos</div><div class="kpi-value" id="an-meses-datos">0</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <div class="card-title">Ventas vs Punto de Equilibrio — Mes a Mes</div>
+    <div class="chart-wrap"><canvas id="chart-ventas-mensual"></canvas></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Ventas vs Gastos Reales</div>
+      <div class="chart-wrap"><canvas id="chart-ventas-gastos"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Ventas por Profesional — Acumulado</div>
+      <div class="chart-wrap"><canvas id="chart-profesionales"></canvas></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="card">
+    <div class="card-title">Resumen Mes a Mes</div>
+    <div style="overflow-x:auto;">
+      <table class="result-table" id="an-tabla-resumen">
+        <tr><th>Mes</th><th>Ventas</th><th>Gastos</th><th>Margen bruto</th><th>vs. Equilibrio</th><th>Resultado</th></tr>
+      </table>
+    </div>
+  </div>
+</div>
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let productos = [];   // { id, nombre, cat, costoUnit, precioVenta, unidad, stock, stockMin, notas }
+let serviciosCat = []; // { id, nombre, area, precio, duracion, equipo, receta:[{prodId,qty}] }
+let editandoReceta = null; // id servicio en edición
+
+const EQUIPOS = {
+  hydra:{nombre:'Hydrafacial',costo:40000,rendimiento:1},
+  radio:{nombre:'Radiofrecuencia',costo:100000,rendimiento:1},
+  bio:{nombre:'Bioelectroestimulación',costo:250000,rendimiento:1},
+  preso:{nombre:'Presoterapia',costo:6000,rendimiento:1}
+};
+const VIDA_UTIL = 24;
+const CAT_LABELS = {cosmetico:'Cosmético',farmaco:'Fármaco',mestetica:'Med. Estética',suplemento:'Suplemento',desechable:'Desechable',reventa:'Reventa'};
+
+const fmt = n => '$' + Math.round(n).toLocaleString('es-MX');
+const pct = (a,b) => b>0?((a/b)*100).toFixed(1)+'%':'0%';
+const uid = () => Date.now().toString(36) + Math.random().toString(36).substr(2,5);
+
+// ═══════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════
+function showPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  el.classList.add('active');
+  if(id==='capacidad') calcCapacidad();
+  if(id==='equilibrio'){calcEquilibrio();calcMeta();}
+  if(id==='descuento') actualizarDesc();
+  if(id==='depreciacion') initDepr();
+  if(id==='inventario') renderInventario();
+  if(id==='recetas') renderRecetas();
+  if(id==='servicio') actualizarCatalogosServicio();
+  if(id==='dashboard') actualizarDashboard();
+}
+
+// ═══════════════════════════════════════════════
+// MODAL HELPERS
+// ═══════════════════════════════════════════════
+function abrirModal(id){document.getElementById(id).classList.add('open');}
+function cerrarModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m) m.classList.remove('open');});
+});
+
+// ═══════════════════════════════════════════════
+// INVENTARIO
+// ═══════════════════════════════════════════════
+function abrirModalProducto(id=null){
+  const p = id ? productos.find(x=>x.id===id) : null;
+  document.getElementById('modal-prod-title').textContent = p ? 'Editar Producto' : 'Agregar Producto';
+  document.getElementById('modal-prod-id').value = p ? p.id : '';
+  document.getElementById('mp-nombre').value = p ? p.nombre : '';
+  document.getElementById('mp-cat').value = p ? p.cat : 'cosmetico';
+  document.getElementById('mp-costo').value = p ? p.costoUnit : 0;
+  document.getElementById('mp-precio-venta').value = p ? p.precioVenta : 0;
+  document.getElementById('mp-unidad').value = p ? p.unidad : 'pieza';
+  document.getElementById('mp-stock').value = p ? p.stock : 0;
+  document.getElementById('mp-stock-min').value = p ? p.stockMin : 5;
+  document.getElementById('mp-notas').value = p ? p.notas : '';
+  document.getElementById('mp-rendimiento').value = p ? (p.rendimiento||1) : 1;
+  abrirModal('modal-producto');
+}
+
+function guardarProducto(){
+  const id = document.getElementById('modal-prod-id').value;
+  const obj = {
+    id: id || uid(),
+    nombre: document.getElementById('mp-nombre').value.trim(),
+    cat: document.getElementById('mp-cat').value,
+    costoUnit: parseFloat(document.getElementById('mp-costo').value)||0,
+    precioVenta: parseFloat(document.getElementById('mp-precio-venta').value)||0,
+    unidad: document.getElementById('mp-unidad').value,
+    stock: parseFloat(document.getElementById('mp-stock').value)||0,
+    stockMin: parseFloat(document.getElementById('mp-stock-min').value)||0,
+    notas: document.getElementById('mp-notas').value.trim(),
+    rendimiento: parseFloat(document.getElementById('mp-rendimiento').value)||1,
+  };
+  if(!obj.nombre){alert('El nombre es obligatorio');return;}
+  if(id){const i=productos.findIndex(x=>x.id===id);if(i>-1)productos[i]=obj;}
+  else productos.push(obj);
+  cerrarModal('modal-producto');
+  renderInventario();
+  actualizarSelectsProductos();
+  actualizarDashboard();
+  guardarDatos();
+}
+
+function eliminarProducto(id){
+  if(!confirm('¿Eliminar este producto?')) return;
+  productos = productos.filter(x=>x.id!==id);
+  serviciosCat.forEach(s=>{s.receta=s.receta.filter(r=>r.prodId!==id);});
+  renderInventario();
+  actualizarSelectsProductos();
+  guardarDatos();
+}
+
+function ajustarStock(id, delta){
+  const p = productos.find(x=>x.id===id);
+  if(p){ p.stock = Math.max(0, p.stock+delta); renderInventario(); actualizarDashboard(); guardarDatos(); }
+}
+
+function renderInventario(){
+  const filtCat = document.getElementById('inv-filtro-cat').value;
+  const filtStock = document.getElementById('inv-filtro-stock').value;
+  let lista = productos.filter(p=>{
+    if(filtCat && p.cat!==filtCat) return false;
+    if(filtStock==='bajo' && p.stock>p.stockMin) return false;
+    if(filtStock==='agotado' && p.stock>0) return false;
+    return true;
+  });
+  const tbody = document.getElementById('inv-tabla');
+  const empty = document.getElementById('inv-empty');
+  empty.style.display = lista.length===0?'block':'none';
+
+  const rows = lista.map(p=>{
+    const stockClass = p.stock===0?'stock-out':p.stock<=p.stockMin?'stock-low':'stock-ok';
+    const stockLabel = p.stock===0?'🔴 Agotado':p.stock<=p.stockMin?'⚠️ Bajo':'✅ OK';
+    return `<tr>
+      <td><strong>${p.nombre}</strong>${p.notas?`<br><span style="font-size:9px;color:var(--soft);">${p.notas}</span>`:''}</td>
+      <td><span class="cat-badge cat-${p.cat}">${CAT_LABELS[p.cat]}</span></td>
+      <td>${fmt(p.costoUnit)}${p.rendimiento>1?`<br><span style='font-size:9px;color:var(--gold);'>${fmt(p.costoUnit/p.rendimiento)}/aplic. (×${p.rendimiento})</span>`:''}</td>
+      <td>${p.precioVenta>0?fmt(p.precioVenta):'—'}</td>
+      <td style="font-size:10px;">${p.unidad}</td>
+      <td class="${stockClass}"><strong>${p.stock}</strong></td>
+      <td style="color:var(--soft);">${p.stockMin}</td>
+      <td><span class="pill ${p.stock===0?'red':p.stock<=p.stockMin?'yellow':'green'}">${stockLabel}</span></td>
+      <td>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+          <button class="btn btn-sm btn-outline" onclick="ajustarStock('${p.id}',1)" title="+1">+</button>
+          <button class="btn btn-sm btn-outline" onclick="ajustarStock('${p.id}',-1)" title="-1">−</button>
+          <button class="btn btn-sm btn-outline" onclick="abrirModalProducto('${p.id}')">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="eliminarProducto('${p.id}')">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  tbody.innerHTML = `<tr><th>Producto</th><th>Categoría</th><th>Costo unit.</th><th>Precio venta</th><th>Unidad</th><th>Stock</th><th>Mínimo</th><th>Estado</th><th>Acciones</th></tr>${rows}`;
+
+  const total = productos.length;
+  const bajos = productos.filter(p=>p.stock>0&&p.stock<=p.stockMin).length;
+  const agotados = productos.filter(p=>p.stock===0).length;
+  document.getElementById('inv-stats').textContent = `${total} productos · ${bajos} stock bajo · ${agotados} agotados`;
+}
+
+function cargarEjemplos(){
+  const ejemplos = [
+    {nombre:'Suero Vitamina C',cat:'cosmetico',costoUnit:280,precioVenta:0,unidad:'frasco',stock:8,stockMin:3,notas:'Uso facial',rendimiento:1},
+    {nombre:'Mascarilla Hidratante',cat:'cosmetico',costoUnit:120,precioVenta:0,unidad:'frasco',stock:12,stockMin:4,notas:'',rendimiento:1},
+    {nombre:'Toxina Botulínica 100U',cat:'mestetica',costoUnit:3200,precioVenta:0,unidad:'frasco',stock:5,stockMin:2,notas:'Botox · 4 aplicaciones por frasco',rendimiento:4},
+    {nombre:'Enzimas Lipolíticas',cat:'mestetica',costoUnit:1200,precioVenta:0,unidad:'ampolleta',stock:10,stockMin:3,notas:'1 ampolleta por sesión',rendimiento:1},
+    {nombre:'Levocarnitina 500mg',cat:'suplemento',costoUnit:85,precioVenta:120,unidad:'pieza',stock:40,stockMin:10,notas:'',rendimiento:1},
+    {nombre:'Pastillas Metformina',cat:'suplemento',costoUnit:25,precioVenta:40,unidad:'pieza',stock:120,stockMin:20,notas:'',rendimiento:1},
+    {nombre:'Agujas 30G',cat:'desechable',costoUnit:8,precioVenta:0,unidad:'pieza',stock:200,stockMin:50,notas:'',rendimiento:1},
+    {nombre:'Guantes látex (par)',cat:'desechable',costoUnit:6,precioVenta:0,unidad:'par',stock:150,stockMin:30,notas:'',rendimiento:1},
+    {nombre:'Bioestimulador Colágeno',cat:'mestetica',costoUnit:4500,precioVenta:0,unidad:'jeringa',stock:3,stockMin:2,notas:'1 jeringa por sesión',rendimiento:1},
+    {nombre:'Crema Reductiva',cat:'cosmetico',costoUnit:350,precioVenta:580,unidad:'frasco',stock:6,stockMin:2,notas:'Reventa disponible',rendimiento:1},
+  ];
+  ejemplos.forEach(e=>productos.push({id:uid(),...e}));
+  renderInventario();
+  actualizarSelectsProductos();
+  actualizarDashboard();
+  guardarDatos();
+}
+
+// ═══════════════════════════════════════════════
+// RECETAS
+// ═══════════════════════════════════════════════
+function abrirModalServicioCat(id=null){
+  const s = id ? serviciosCat.find(x=>x.id===id) : null;
+  document.getElementById('modal-svc-title').textContent = s?'Editar Servicio':'Agregar Servicio';
+  document.getElementById('modal-svc-id').value = s?s.id:'';
+  document.getElementById('ms-nombre').value = s?s.nombre:'';
+  document.getElementById('ms-area').value = s?s.area:'cosmiatra';
+  document.getElementById('ms-precio').value = s?s.precio:0;
+  document.getElementById('ms-duracion').value = s?s.duracion:60;
+  document.getElementById('ms-equipo').value = s?s.equipo:'0';
+  abrirModal('modal-servicio-cat');
+}
+
+function guardarServicioCat(){
+  const id = document.getElementById('modal-svc-id').value;
+  const obj = {
+    id: id||uid(),
+    nombre: document.getElementById('ms-nombre').value.trim(),
+    area: document.getElementById('ms-area').value,
+    precio: parseFloat(document.getElementById('ms-precio').value)||0,
+    duracion: parseFloat(document.getElementById('ms-duracion').value)||60,
+    equipo: document.getElementById('ms-equipo').value,
+    receta: id ? (serviciosCat.find(x=>x.id===id)||{receta:[]}).receta : [],
+  };
+  if(!obj.nombre){alert('El nombre es obligatorio');return;}
+  if(id){const i=serviciosCat.findIndex(x=>x.id===id);if(i>-1)serviciosCat[i]=obj;}
+  else serviciosCat.push(obj);
+  cerrarModal('modal-servicio-cat');
+  renderRecetas();
+  actualizarCatalogosServicio();
+  guardarDatos();
+}
+
+function eliminarServicioCat(id){
+  if(!confirm('¿Eliminar este servicio?')) return;
+  serviciosCat = serviciosCat.filter(x=>x.id!==id);
+  renderRecetas();
+  actualizarCatalogosServicio();
+  guardarDatos();
+}
+
+function abrirModalReceta(svcId){
+  editandoReceta = svcId;
+  const s = serviciosCat.find(x=>x.id===svcId);
+  document.getElementById('modal-rec-title').textContent = `Receta: ${s.nombre}`;
+  document.getElementById('modal-rec-servicio').value = svcId;
+  actualizarSelectsProductos();
+  document.getElementById('rec-costo-variable').value = s.costoVariable||0;
+  renderRecetaItems();
+  abrirModal('modal-receta');
+}
+
+function actualizarSelectsProductos(){
+  const sel = document.getElementById('rec-prod-select');
+  if(!sel) return;
+  sel.innerHTML = productos.length===0
+    ? '<option value="">— Agrega productos primero —</option>'
+    : '<option value="">— Seleccionar producto —</option>' +
+      productos.map(p=>`<option value="${p.id}">${p.nombre} — ${p.rendimiento>1?fmt(p.costoUnit/p.rendimiento)+'/aplic.':fmt(p.costoUnit)+'/'+p.unidad}</option>`).join('');
+}
+
+function agregarAReceta(){
+  if(!editandoReceta) return;
+  const prodId = document.getElementById('rec-prod-select').value;
+  const qty = parseFloat(document.getElementById('rec-prod-qty').value)||1;
+  if(!prodId){alert('Selecciona un producto');return;}
+  const s = serviciosCat.find(x=>x.id===editandoReceta);
+  const existing = s.receta.find(r=>r.prodId===prodId);
+  if(existing){existing.qty+=qty;} else {s.receta.push({prodId,qty});}
+  renderRecetaItems();
+}
+
+function quitarDeReceta(prodId){
+  if(!editandoReceta) return;
+  const s = serviciosCat.find(x=>x.id===editandoReceta);
+  s.receta = s.receta.filter(r=>r.prodId!==prodId);
+  renderRecetaItems();
+}
+
+function renderRecetaItems(){
+  if(!editandoReceta) return;
+  const s = serviciosCat.find(x=>x.id===editandoReceta);
+  const container = document.getElementById('receta-items-list');
+  let total = 0;
+  if(!s.receta.length){
+    container.innerHTML = '<div style="font-size:11px;color:var(--soft);padding:10px;">Sin ingredientes todavía.</div>';
+  } else {
+    container.innerHTML = s.receta.map(r=>{
+      const p = productos.find(x=>x.id===r.prodId);
+      if(!p) return '';
+      const costoUnit = p.rendimiento>1 ? p.costoUnit/p.rendimiento : p.costoUnit;
+      const costoLinea = costoUnit * r.qty;
+      total += costoLinea;
+      return `<div class="receta-item">
+        <span class="ri-nombre">${p.nombre}</span>
+        <input class="ri-qty" type="number" value="${r.qty}" min="0.01" step="0.01"
+          onchange="actualizarQtyReceta('${r.prodId}',this.value)"
+          style="padding:4px 6px;border:1px solid var(--warm);background:var(--cream);font-family:'DM Mono',monospace;font-size:11px;border-radius:2px;">
+        <span style="font-size:9px;color:var(--soft);">${p.unidad}</span>
+        <span class="ri-costo">${fmt(costoLinea)}</span>
+        <span class="ri-del" onclick="quitarDeReceta('${r.prodId}')">✕</span>
+      </div>`;
+    }).join('');
+  }
+  const costoVar = parseFloat(document.getElementById('rec-costo-variable').value)||0;
+  const totalConVar = total + costoVar;
+  document.getElementById('receta-costo-total').textContent = fmt(totalConVar);
+  if(costoVar>0){
+    const note = document.getElementById('receta-var-note');
+    if(note) note.textContent = `Productos: ${fmt(total)} + Materiales variables: ${fmt(costoVar)}`;
+  }
+}
+
+function actualizarQtyReceta(prodId, val){
+  if(!editandoReceta) return;
+  const s = serviciosCat.find(x=>x.id===editandoReceta);
+  const r = s.receta.find(x=>x.prodId===prodId);
+  if(r) r.qty = parseFloat(val)||0;
+  renderRecetaItems();
+}
+
+function guardarReceta(){
+  if(editandoReceta){
+    const s=serviciosCat.find(x=>x.id===editandoReceta);
+    if(s) s.costoVariable=parseFloat(document.getElementById('rec-costo-variable').value)||0;
+  }
+  cerrarModal('modal-receta');
+  renderRecetas();
+  actualizarCatalogosServicio();
+  guardarDatos();
+}
+
+function getCostoReceta(svcId){
+  const s = serviciosCat.find(x=>x.id===svcId);
+  if(!s||!s.receta.length) return 0;
+  const baseReceta = s.receta.reduce((acc,r)=>{
+    const p = productos.find(x=>x.id===r.prodId);
+    if(!p) return acc;
+    const costoUnit = p.rendimiento>1 ? p.costoUnit/p.rendimiento : p.costoUnit;
+    return acc + costoUnit*r.qty;
+  },0);
+  return baseReceta + (s.costoVariable||0);
+}
+
+function renderRecetas(){
+  const grid = document.getElementById('recetas-grid');
+  document.getElementById('rec-stats').textContent = `${serviciosCat.length} servicios registrados`;
+  if(!serviciosCat.length){
+    grid.innerHTML = '<div style="grid-column:1/-1;" class="alert blue">No hay servicios registrados. Haz clic en <strong>+ Nuevo Servicio</strong> para comenzar.</div>';
+    return;
+  }
+  grid.innerHTML = serviciosCat.map(s=>{
+    const costoRec = getCostoReceta(s.id);
+    const deprSes = getDeprSesion(s.equipo);
+    const pill = costoRec>0?'green':'yellow';
+    return `<div class="card">
+      <div class="card-title">${s.nombre}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+        <span class="pill blue">${s.area==='cosmiatra'?'Cosmiatra':s.area==='estetico'?'Médico Estético':'Nutrición'}</span>
+        <span class="pill ${pill}">${costoRec>0?'Insumos: '+fmt(costoRec):'Sin receta'}</span>
+        ${s.costoVariable>0?`<span class="pill yellow">+${fmt(s.costoVariable)} variables</span>`:''}
+        ${deprSes>0?`<span class="pill yellow">⚙️ Depr: ${fmt(deprSes)}/ses</span>`:''}
+      </div>
+      <table class="result-table" style="margin-top:0;">
+        <tr><td style="color:var(--soft);">Precio</td><td><strong>${fmt(s.precio)}</strong></td></tr>
+        <tr><td style="color:var(--soft);">Duración</td><td>${s.duracion} min</td></tr>
+        <tr><td style="color:var(--soft);">Ingredientes</td><td>${s.receta.length} producto(s)</td></tr>
+      </table>
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+        <button class="btn btn-sm btn-outline" onclick="abrirModalReceta('${s.id}')">🧪 Editar Receta</button>
+        <button class="btn btn-sm btn-outline" onclick="abrirModalServicioCat('${s.id}')">✏️ Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="eliminarServicioCat('${s.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+// COSTO POR SERVICIO — integración catálogo
+// ═══════════════════════════════════════════════
+function actualizarCatalogosServicio(){
+  const sel = document.getElementById('srv-catalogo');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">— Seleccionar servicio guardado —</option>' +
+    serviciosCat.map(s=>`<option value="${s.id}">${s.nombre} — ${fmt(s.precio)}</option>`).join('');
+  actualizarCostoRecetaActual();
+}
+
+function cargarServicioCatalogo(){
+  const id = document.getElementById('srv-catalogo').value;
+  if(!id) return;
+  const s = serviciosCat.find(x=>x.id===id);
+  if(!s) return;
+  document.getElementById('srv-nombre').value = s.nombre;
+  document.getElementById('srv-area').value = s.area;
+  document.getElementById('srv-precio').value = s.precio;
+  document.getElementById('srv-duracion').value = s.duracion;
+  document.getElementById('srv-equipo').value = s.equipo||'0';
+  actualizarCostoRecetaActual();
+}
+
+function actualizarCostoRecetaActual(){
+  const id = document.getElementById('srv-catalogo').value;
+  const el = document.getElementById('srv-costo-receta');
+  if(!id||!el){if(el) el.value='Sin receta';return;}
+  const costo = getCostoReceta(id);
+  el.value = costo>0 ? fmt(costo)+' (desde receta)' : 'Sin receta definida';
+}
+
+function usarCostoReceta(){
+  const id = document.getElementById('srv-catalogo').value;
+  if(!id){alert('Selecciona un servicio del catálogo primero');return;}
+  const costo = getCostoReceta(id);
+  if(costo===0){alert('Este servicio no tiene receta definida. Ve a la pestaña Recetas para agregarla.');return;}
+  document.getElementById('srv-insumo').value = Math.round(costo);
+}
+
+// ═══════════════════════════════════════════════
+// COSTO POR SERVICIO — cálculo
+// ═══════════════════════════════════════════════
+function getComisionProveedor(area,precio,esPaquete){
+  if(area==='estetico') return precio*0.15;
+  if(area==='cosmiatra') return esPaquete==='si'?precio*0.10:150;
+  if(area==='nutricion') return 250;
+  return 0;
+}
+function getCostoFijoHora(area){
+  const total=260000;
+  if(area==='estetico') return (total*0.40)/180;
+  if(area==='cosmiatra') return (total*0.35)/360;
+  if(area==='nutricion') return (total*0.25)/180;
+  return 0;
+}
+function getDeprSesion(equipoKey){
+  if(!equipoKey||equipoKey==='0'||!EQUIPOS[equipoKey]) return 0;
+  const sesId='dep-'+equipoKey+'-ses';
+  const sesEl=document.getElementById(sesId);
+  const ses=sesEl?parseFloat(sesEl.value)||30:30;
+  return (EQUIPOS[equipoKey].costo/VIDA_UTIL)/ses;
+}
+
+function calcularServicio(){
+  const nombre=document.getElementById('srv-nombre').value||'Servicio';
+  const area=document.getElementById('srv-area').value;
+  const precio=parseFloat(document.getElementById('srv-precio').value)||0;
+  const insumo=parseFloat(document.getElementById('srv-insumo').value)||0;
+  const duracion=parseFloat(document.getElementById('srv-duracion').value)||60;
+  const pctBanco=parseFloat(document.getElementById('srv-pago').value);
+  const esPaquete=document.getElementById('srv-paquete').value;
+  const equipoVal=document.getElementById('srv-equipo').value;
+  const deprEquipo=equipoVal==='custom'
+    ?parseFloat(document.getElementById('srv-equipo-custom').value)||0
+    :getDeprSesion(equipoVal);
+  const com1=parseFloat(document.getElementById('srv-com1').value)/100||0;
+  const com2=parseFloat(document.getElementById('srv-com2').value)/100||0;
+
+  const banco=precio*pctBanco;
+  const comProv=getComisionProveedor(area,precio,esPaquete);
+  const comAd1=precio*com1;
+  const comAd2=precio*com2;
+  const cfServicio=getCostoFijoHora(area)*(duracion/60);
+  const costoTotal=insumo+banco+comProv+comAd1+comAd2+deprEquipo+cfServicio;
+  const margen=precio-costoTotal;
+  const mp=precio>0?(margen/precio)*100:0;
+  const color=mp>=30?'success':mp>=10?'warning':'danger';
+  const pill=mp>=30?'green':mp>=10?'yellow':'red';
+
+  document.getElementById('srv-result').innerHTML=`
+    <div class="card-title">Desglose · ${nombre}</div>
+    <table class="result-table">
+      <tr><th>Concepto</th><th>Monto</th><th>% precio</th></tr>
+      <tr><td>Precio de venta</td><td><strong>${fmt(precio)}</strong></td><td>100%</td></tr>
+      <tr><td>— Insumos / productos</td><td style="color:var(--danger)">${fmt(insumo)}</td><td>${pct(insumo,precio)}</td></tr>
+      <tr><td>— Comisión banco (${(pctBanco*100).toFixed(0)}%)</td><td style="color:var(--danger)">${fmt(banco)}</td><td>${pct(banco,precio)}</td></tr>
+      <tr><td>— Comisión proveedor servicio</td><td style="color:var(--danger)">${fmt(comProv)}</td><td>${pct(comProv,precio)}</td></tr>
+      ${com1>0?`<tr><td>— Comisionista 1 (${(com1*100).toFixed(0)}%)</td><td style="color:var(--danger)">${fmt(comAd1)}</td><td>${pct(comAd1,precio)}</td></tr>`:''}
+      ${com2>0?`<tr><td>— Comisionista 2 (${(com2*100).toFixed(0)}%)</td><td style="color:var(--danger)">${fmt(comAd2)}</td><td>${pct(comAd2,precio)}</td></tr>`:''}
+      ${deprEquipo>0?`<tr><td>— ⚙️ Depreciación equipo</td><td style="color:var(--gold)">${fmt(deprEquipo)}</td><td>${pct(deprEquipo,precio)}</td></tr>`:''}
+      <tr><td>— Costo fijo asignado (${duracion}min)</td><td style="color:var(--danger)">${fmt(cfServicio)}</td><td>${pct(cfServicio,precio)}</td></tr>
+      <tr class="total-row"><td><strong>Costo total</strong></td><td><strong>${fmt(costoTotal)}</strong></td><td>${pct(costoTotal,precio)}</td></tr>
+    </table>
+    <div style="margin-top:18px;text-align:center;">
+      <div class="kpi-label">Margen Neto Real</div>
+      <div class="kpi-value ${color}" style="font-size:42px;">${fmt(margen)}</div>
+      <span class="pill ${pill}" style="font-size:13px;padding:4px 14px;margin-top:8px;display:inline-block;">${mp.toFixed(1)}% de margen</span>
+    </div>
+    ${mp<15?'<div class="alert red" style="margin-top:14px;">⚠️ Margen muy bajo. Sube precio, reduce insumos o agrupa en paquete.</div>':''}
+    ${mp>=40?`<div class="alert green" style="margin-top:14px;">✅ Excelente margen. Puedes dar hasta ${Math.floor(mp-25)}% de descuento y seguir siendo rentable.</div>`:''}
+  `;
+}
+
+// ═══════════════════════════════════════════════
+// DESCUENTOS
+// ═══════════════════════════════════════════════
+function actualizarDesc(){
+  const val=document.getElementById('desc-tipo').value;
+  document.getElementById('desc-custom-wrap').style.display=val.startsWith('custom')?'block':'none';
+  calcDescuento(parseInt(document.getElementById('desc-slider').value));
+}
+function moverSlider(v){document.getElementById('desc-pct-label').textContent=v+'%';calcDescuento(parseInt(v));}
+function calcDescuento(descPct){
+  const val=document.getElementById('desc-tipo').value;
+  const parts=val.split('|');
+  const precioBase=val.startsWith('custom')?parseFloat(document.getElementById('desc-custom-precio').value)||1000:parseFloat(parts[0])||1000;
+  const deprBase=val.startsWith('custom')?0:parseFloat(parts[1])||0;
+  const area=val.startsWith('custom')?'cosmiatra':(parts[2]||'cosmiatra');
+  const insumo=parseFloat(document.getElementById('desc-insumo').value)||0;
+  const pctBanco=parseFloat(document.getElementById('desc-pago').value);
+  const com1=parseFloat(document.getElementById('desc-com1').value)/100||0;
+  const com2=parseFloat(document.getElementById('desc-com2').value)/100||0;
+  const precioDesc=precioBase*(1-descPct/100);
+  const banco=precioDesc*pctBanco;
+  const comProv=getComisionProveedor(area,precioDesc,'no');
+  const comAd1=precioDesc*com1;
+  const comAd2=precioDesc*com2;
+  const cfHora=getCostoFijoHora(area);
+  const costoTotal=insumo+banco+comProv+comAd1+comAd2+deprBase+cfHora;
+  const margen=precioDesc-costoTotal;
+  const mp=precioDesc>0?(margen/precioDesc)*100:0;
+  const color=margen>0?(mp>=20?'success':'warning'):'danger';
+  const pill=margen>0?(mp>=20?'green':'yellow'):'red';
+  const msg=margen<0
+    ?'<div class="alert red" style="margin-top:10px;">🚫 Con este descuento <strong>pierdes dinero</strong> en cada servicio.</div>'
+    :mp<15
+    ?'<div class="alert" style="margin-top:10px;">⚠️ Margen muy ajustado. Solo para captar cliente con alto potencial de recompra.</div>'
+    :'<div class="alert green" style="margin-top:10px;">✅ Descuento sostenible.</div>';
+  document.getElementById('desc-output').innerHTML=`
+    <div class="grid-2" style="gap:10px;margin-bottom:14px;">
+      <div class="kpi-box"><div class="kpi-label">Precio original</div><div class="kpi-value" style="font-size:22px;">${fmt(precioBase)}</div></div>
+      <div class="kpi-box"><div class="kpi-label">Con ${descPct}% desc.</div><div class="kpi-value ${color}" style="font-size:22px;">${fmt(precioDesc)}</div></div>
+    </div>
+    <div class="discount-bar"><div class="bar-label">Insumos</div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,insumo/Math.max(precioDesc,1)*100)}%;background:var(--soft);"></div></div><div class="bar-val">${fmt(insumo)}</div></div>
+    <div class="discount-bar"><div class="bar-label">Banco</div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,banco/Math.max(precioDesc,1)*100)}%;background:var(--rose);"></div></div><div class="bar-val">${fmt(banco)}</div></div>
+    <div class="discount-bar"><div class="bar-label">Comisión prov.</div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,comProv/Math.max(precioDesc,1)*100)}%;background:var(--warning);"></div></div><div class="bar-val">${fmt(comProv)}</div></div>
+    ${com1>0?`<div class="discount-bar"><div class="bar-label">Comisionista 1</div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,comAd1/Math.max(precioDesc,1)*100)}%;background:var(--rose-light);"></div></div><div class="bar-val">${fmt(comAd1)}</div></div>`:''}
+    ${com2>0?`<div class="discount-bar"><div class="bar-label">Comisionista 2</div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,comAd2/Math.max(precioDesc,1)*100)}%;background:var(--rose-light);"></div></div><div class="bar-val">${fmt(comAd2)}</div></div>`:''}
+    ${deprBase>0?`<div class="discount-bar"><div class="bar-label">⚙️ Depreciación</div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,deprBase/Math.max(precioDesc,1)*100)}%;background:var(--gold);"></div></div><div class="bar-val">${fmt(deprBase)}</div></div>`:''}
+    <div class="discount-bar"><div class="bar-label">Costo fijo/hr</div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,cfHora/Math.max(precioDesc,1)*100)}%;background:var(--gold-light);"></div></div><div class="bar-val">${fmt(cfHora)}</div></div>
+    <div style="border-top:1px solid var(--warm);margin:10px 0;padding-top:10px;text-align:center;">
+      <div class="kpi-label">Margen</div>
+      <div class="kpi-value ${color}">${fmt(margen)}</div>
+      <span class="pill ${pill}" style="margin-top:6px;display:inline-block;">${mp.toFixed(1)}%</span>
+    </div>${msg}`;
+}
+
+// ═══════════════════════════════════════════════
+// EQUILIBRIO
+// ═══════════════════════════════════════════════
+function calcEquilibrio(){
+  const pi=parseFloat(document.getElementById('eq-pct-insumo').value)/100||0.05;
+  const pc=parseFloat(document.getElementById('eq-pct-comision').value)/100||0.03;
+  const pb=parseFloat(document.getElementById('eq-pct-banco').value)/100||0.02;
+  const pv=pi+pc+pb;
+  const meta=260000/(1-pv);
+  document.getElementById('eq-meta').textContent=fmt(meta);
+  document.getElementById('eq-diario').textContent=fmt(meta/23);
+  document.getElementById('eq-variables').textContent=fmt(meta*pv);
+  calcMeta();
+}
+function calcMeta(){
+  const util=parseFloat(document.getElementById('eq-utilidad').value)||0;
+  const pi=parseFloat(document.getElementById('eq-pct-insumo').value)/100||0.05;
+  const pc=parseFloat(document.getElementById('eq-pct-comision').value)/100||0.03;
+  const pb=parseFloat(document.getElementById('eq-pct-banco').value)/100||0.02;
+  const pv=pi+pc+pb;
+  const meta=(260000+util)/(1-pv);
+  const svcDia=(meta/23)/2492;
+  const pctA=Math.min(100,(162020/meta)*100);
+  document.getElementById('eq-meta-total').textContent=fmt(meta);
+  document.getElementById('eq-servicios-dia').textContent='~'+svcDia.toFixed(1);
+  document.getElementById('eq-progreso').style.width=pctA+'%';
+  document.getElementById('eq-progreso').style.background=pctA<60?'var(--danger)':pctA<80?'var(--warning)':'var(--success)';
+  document.getElementById('eq-pct-alcanzado').textContent='Abril cubrió el '+pctA.toFixed(1)+'% de esta meta';
+}
+
+// ═══════════════════════════════════════════════
+// CAPACIDAD
+// ═══════════════════════════════════════════════
+function calcCapacidad(){
+  const mM=parseFloat(document.getElementById('cap-medico').value)||60;
+  const mC=parseFloat(document.getElementById('cap-cosmiatra').value)||60;
+  const mN=parseFloat(document.getElementById('cap-nutricion').value)||45;
+  const hrsMes=20*8+4*5;
+  const cM=Math.floor((hrsMes*60)/mM);
+  const cC=Math.floor((hrsMes*60)/mC)*2;
+  const cN=Math.floor((hrsMes*60)/mN);
+  const tM=5500,tC=1500,tN=900;
+  const maxT=cM*tM+cC*tC+cN*tN;
+  document.getElementById('cap-tabla').innerHTML=`
+    <tr><th>Espacio</th><th>Citas/mes</th><th>Ticket prom.</th><th>Máx. facturación</th></tr>
+    <tr><td>Consultorio Médico Estético</td><td>${cM}</td><td>${fmt(tM)}</td><td><strong>${fmt(cM*tM)}</strong></td></tr>
+    <tr><td>Cabinas Cosmiatra (×2)</td><td>${cC}</td><td>${fmt(tC)}</td><td><strong>${fmt(cC*tC)}</strong></td></tr>
+    <tr><td>Consultorio Nutrición</td><td>${cN}</td><td>${fmt(tN)}</td><td><strong>${fmt(cN*tN)}</strong></td></tr>
+    <tr class="total-row"><td><strong>TOTAL</strong></td><td></td><td></td><td><strong>${fmt(maxT)}</strong></td></tr>`;
+  document.getElementById('cap-alerta').innerHTML=`📌 Potencial máximo: <strong>${fmt(maxT)}</strong>/mes. Abril usó el ${((162020/maxT)*100).toFixed(1)}%.`;
+}
+
+// ═══════════════════════════════════════════════
+// DEPRECIACIÓN
+// ═══════════════════════════════════════════════
+function calcDepr(id,costo,sesiones){
+  const s=parseFloat(sesiones)||1;
+  const dm=costo/VIDA_UTIL;
+  const ds=dm/s;
+  const pill=ds<50?'green':ds<200?'yellow':'red';
+  document.getElementById('dep-'+id+'-result').innerHTML=`
+    <div class="grid-2" style="gap:10px;margin-top:10px;">
+      <div class="kpi-box"><div class="kpi-label">Dep./mes</div><div class="kpi-value warning" style="font-size:20px;">${fmt(dm)}</div></div>
+      <div class="kpi-box"><div class="kpi-label">Costo/sesión</div><div class="kpi-value" style="font-size:20px;">${fmt(ds)} <span class="pill ${pill}" style="font-size:9px;">${ds<50?'Bajo':ds<200?'Medio':'Alto'}</span></div></div>
+    </div>`;
+  updateResumenDepr();
+}
+function updateResumenDepr(){
+  const eq=[{id:'hydra',c:40000},{id:'radio',c:100000},{id:'bio',c:250000},{id:'preso',c:6000}];
+  document.getElementById('depr-resumen').innerHTML=`
+    <tr><th>Equipo</th><th>Costo</th><th>Dep./mes</th><th>Sesiones/mes</th><th>Costo/sesión</th><th>Semáforo</th></tr>`+
+    eq.map(e=>{
+      const s=parseFloat(document.getElementById('dep-'+e.id+'-ses').value)||1;
+      const dm=e.c/VIDA_UTIL,ds=dm/s;
+      const pill=ds<50?'green':ds<200?'yellow':'red';
+      return `<tr><td>${EQUIPOS[e.id].nombre}</td><td>${fmt(e.c)}</td><td>${fmt(dm)}</td><td>${Math.round(s)}</td><td>${fmt(ds)}</td><td><span class="pill ${pill}">${ds<50?'✅ Bajo':ds<200?'⚠️ Medio':'🚫 Alto'}</span></td></tr>`;
+    }).join('');
+}
+function initDepr(){
+  Object.keys(EQUIPOS).forEach(id=>calcDepr(id,EQUIPOS[id].costo,document.getElementById('dep-'+id+'-ses').value));
+}
+
+// ═══════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════
+function actualizarDashboard(){
+  const alertas=productos.filter(p=>p.stock<=p.stockMin).length;
+  const el=document.getElementById('dash-alertas-inv');
+  if(el){el.textContent=alertas;el.className='kpi-value '+(alertas>0?'danger':'success');}
+  const resumen=document.getElementById('dash-inv-resumen');
+  if(resumen){
+    if(!productos.length){resumen.innerHTML='<div style="font-size:12px;color:var(--soft);">Agrega productos en la pestaña Inventario.</div>';return;}
+    const total=productos.length;
+    const bajos=productos.filter(p=>p.stock>0&&p.stock<=p.stockMin);
+    const agotados=productos.filter(p=>p.stock===0);
+    resumen.innerHTML=`
+      <div class="grid-3" style="gap:10px;">
+        <div class="kpi-box"><div class="kpi-label">Total productos</div><div class="kpi-value" style="font-size:22px;">${total}</div></div>
+        <div class="kpi-box"><div class="kpi-label">Stock bajo</div><div class="kpi-value ${bajos.length>0?'warning':'success'}" style="font-size:22px;">${bajos.length}</div></div>
+        <div class="kpi-box"><div class="kpi-label">Agotados</div><div class="kpi-value ${agotados.length>0?'danger':'success'}" style="font-size:22px;">${agotados.length}</div></div>
+      </div>
+      ${agotados.length>0?`<div class="alert red" style="margin-top:10px;margin-bottom:0;">🚫 <strong>Agotados:</strong> ${agotados.map(p=>p.nombre).join(', ')}</div>`:''}
+      ${bajos.length>0?`<div class="alert" style="margin-top:8px;margin-bottom:0;">⚠️ <strong>Stock bajo:</strong> ${bajos.map(p=>p.nombre).join(', ')}</div>`:''}
+    `;
+  }
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════
+// VENTAS & GASTOS STATE
+// ═══════════════════════════════════════════════════════════════
+let ventasPorMes = {};
+let gastosPorMes = {};
+let mesActivoVentas = "2025-04";
+let mesActivoGastos = "2025-04";
+let chartVentas = null, chartVG = null, chartProf = null;
+
+const MESES_LABELS = ["","Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+const PROFESIONALES = ["Dr. Antonio","Dr. Victor","Yiss (cosmiatra)","Erika","Cynthia","Otro"];
+const TIPOS_PAGO_OBJ = {"efectivo":"Efectivo","tarjeta":"Tarjeta (3%)","msi":"3 MSI (9%)"};
+const CATEGORIAS_GASTO = {
+  renta:"Renta / Local", nomina:"Nóminas", marketing:"Marketing",
+  prestamo:"Préstamos", insumos:"Insumos / Inventario",
+  contabilidad:"Contabilidad", equipo:"Equipo / Mant.",
+  servicios:"Servicios", otros:"Otros"
+};
+
+function getMesVentas(mes){ return ventasPorMes[mes] || (ventasPorMes[mes]=[]); }
+function getMesGastos(mes){ return gastosPorMes[mes] || (gastosPorMes[mes]=[]); }
+function pctBancoV(p){ return p==="tarjeta"?0.03:p==="msi"?0.09:0; }
+function calcMargenVenta(v){
+  const banco = v.precio * pctBancoV(v.pago);
+  const comProv = (v.profesional||"").includes("Antonio")||(v.profesional||"").includes("Cynthia") ? v.precio*0.15 :
+                  (v.profesional||"").includes("Victor") ? 250 : 150;
+  return v.precio - (v.insumo||0) - banco - comProv;
+}
+
+// VENTAS
+function cambiarMesVentas(){ mesActivoVentas=document.getElementById("ventas-mes-sel").value; renderVentas(); }
+function cambiarMesGastos(){ mesActivoGastos=document.getElementById("gastos-mes-sel").value; renderGastos(); }
+
+function agregarVenta(){
+  getMesVentas(mesActivoVentas).push({id:uid(),servicio:"",profesional:"Dr. Antonio",precio:0,pago:"efectivo",promo:"",insumo:0});
+  renderVentas();
+  guardarDatos();
+}
+function eliminarVenta(id){
+  ventasPorMes[mesActivoVentas]=getMesVentas(mesActivoVentas).filter(v=>v.id!==id);
+  renderVentas();
+  guardarDatos();
+}
+function actualizarVenta(id,campo,valor){
+  const v=getMesVentas(mesActivoVentas).find(x=>x.id===id);
+  if(!v) return;
+  if(["precio","insumo"].includes(campo)) valor=parseFloat(valor)||0;
+  v[campo]=valor;
+  renderVentaKPIs();
+  actualizarValidacion();
+  guardarDatos();
+}
+
+function renderVentas(){
+  const lista=getMesVentas(mesActivoVentas);
+  const c=document.getElementById("ventas-lista");
+  if(!lista.length){
+    c.innerHTML='<div style="padding:24px;text-align:center;font-family:DM Mono,monospace;font-size:11px;color:var(--soft);">Sin ventas. Haz clic en <strong>+ Agregar Venta</strong> o carga el ejemplo de Abril.</div>';
+    renderVentaKPIs(); actualizarValidacion(); return;
+  }
+  c.innerHTML=lista.map(v=>{
+    const margen=calcMargenVenta(v);
+    const mp=v.precio>0?(margen/v.precio*100):0;
+    const col=mp>=30?"var(--success)":mp>=10?"var(--warning)":"var(--danger)";
+    const profOpts=PROFESIONALES.map(p=>`<option value="${p}" ${v.profesional===p?"selected":""}>${p}</option>`).join("");
+    const pagoOpts=Object.entries(TIPOS_PAGO_OBJ).map(([k,l])=>`<option value="${k}" ${v.pago===k?"selected":""}>${l}</option>`).join("");
+    return `<div class="venta-row">
+      <input type="text" value="${v.servicio||""}" placeholder="Ej: Botox, Hydrafacial…" onchange="actualizarVenta('${v.id}','servicio',this.value)">
+      <select onchange="actualizarVenta('${v.id}','profesional',this.value)">${profOpts}</select>
+      <div style="position:relative;"><span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--soft);pointer-events:none;">$</span>
+        <input type="number" value="${v.precio||0}" style="padding-left:20px;" oninput="actualizarVenta('${v.id}','precio',this.value)"></div>
+      <select onchange="actualizarVenta('${v.id}','pago',this.value)">${pagoOpts}</select>
+      <input type="text" value="${v.promo||""}" placeholder="Promo…" onchange="actualizarVenta('${v.id}','promo',this.value)">
+      <div style="font-family:DM Mono,monospace;font-size:10px;color:${col};font-weight:500;">${fmt(margen)}<br><span style="font-size:9px;">${mp.toFixed(0)}%</span></div>
+      <span onclick="eliminarVenta('${v.id}')" style="cursor:pointer;color:var(--danger);font-size:16px;text-align:center;">✕</span>
+    </div>`;
+  }).join("");
+  renderVentaKPIs(); actualizarValidacion();
+}
+
+function renderVentaKPIs(){
+  const lista=getMesVentas(mesActivoVentas);
+  const total=lista.reduce((a,v)=>a+v.precio,0);
+  const insumos=lista.reduce((a,v)=>a+(v.insumo||0),0);
+  const comBanco=lista.reduce((a,v)=>a+v.precio*pctBancoV(v.pago),0);
+  const margen=lista.reduce((a,v)=>a+calcMargenVenta(v),0);
+  const mp=total>0?(margen/total*100):0;
+  document.getElementById("v-total-mes").textContent=fmt(total);
+  document.getElementById("v-costo-mes").textContent=fmt(insumos);
+  document.getElementById("v-comisiones-mes").textContent=fmt(comBanco);
+  const mel=document.getElementById("v-margen-mes");
+  mel.textContent=fmt(margen)+" ("+mp.toFixed(1)+"%)";
+  mel.className="kpi-value "+(mp>=30?"success":mp>=10?"warning":"danger");
+  document.getElementById("v-total-footer").textContent=fmt(total);
+  document.getElementById("v-conteo").textContent=lista.length+" registros";
+}
+
+function actualizarValidacion(){
+  const lista=getMesVentas(mesActivoVentas);
+  const total=lista.reduce((a,v)=>a+v.precio,0);
+  const porProf={};
+  PROFESIONALES.forEach(p=>porProf[p]=0);
+  lista.forEach(v=>{ porProf[v.profesional]=(porProf[v.profesional]||0)+v.precio; });
+  const ppEl=document.getElementById("v-por-profesional");
+  if(ppEl){
+    const profData=Object.entries(porProf).filter(([,v])=>v>0);
+    ppEl.innerHTML=profData.length===0?'<div style="font-size:11px;color:var(--soft);">Sin datos.</div>':
+      profData.map(([p,v])=>{
+        const pctV=total>0?(v/total*100):0;
+        const margenP=lista.filter(x=>x.profesional===p).reduce((a,x)=>a+calcMargenVenta(x),0);
+        const mpP=v>0?(margenP/v*100):0;
+        const pillC=mpP>=30?"green":mpP>=10?"yellow":"red";
+        return `<div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;font-family:DM Mono,monospace;font-size:10px;margin-bottom:4px;">
+            <span>${p}</span><span>${fmt(v)} <span class="pill ${pillC}">${mpP.toFixed(0)}% margen</span></span>
+          </div>
+          <div class="progress-wrap"><div class="progress-fill" style="width:${pctV}%;background:var(--gold);"></div></div>
+        </div>`;
+      }).join("");
+  }
+  const eq=Math.round(260000/0.90);
+  const pctEq=Math.min(100,(total/eq*100));
+  const diff=total-eq;
+  const veEl=document.getElementById("v-vs-equilibrio");
+  if(veEl) veEl.innerHTML=`
+    <div class="kpi-label">Ventas del mes</div>
+    <div class="kpi-value ${total>=eq?"success":"danger"}" style="font-size:24px;">${fmt(total)}</div>
+    <div style="margin-top:10px;"><div class="kpi-label">Meta equilibrio (~${fmt(eq)})</div>
+      <div class="progress-wrap"><div class="progress-fill" style="width:${pctEq}%;background:${total>=eq?"var(--success)":"var(--danger)"};"></div></div>
+      <div style="font-family:DM Mono,monospace;font-size:10px;color:var(--soft);margin-top:4px;">${pctEq.toFixed(1)}% alcanzado</div>
+    </div>
+    <div class="alert ${diff>=0?"green":"red"}" style="margin-top:12px;margin-bottom:0;">
+      ${diff>=0?"✅ Superaste el equilibrio por "+fmt(diff):"⚠️ Faltan "+fmt(Math.abs(diff))+" para el equilibrio"}
+    </div>`;
+}
+
+// GASTOS
+function agregarGasto(){
+  const hoy=new Date();
+  const fecha=hoy.getFullYear()+"-"+(hoy.getMonth()+1).toString().padStart(2,"0")+"-"+hoy.getDate().toString().padStart(2,"0");
+  getMesGastos(mesActivoGastos).push({id:uid(),fecha,concepto:"",categoria:"otros",monto:0});
+  renderGastos();
+  guardarDatos();
+}
+function eliminarGasto(id){
+  gastosPorMes[mesActivoGastos]=getMesGastos(mesActivoGastos).filter(g=>g.id!==id);
+  renderGastos();
+  guardarDatos();
+}
+function actualizarGasto(id,campo,valor){
+  const g=getMesGastos(mesActivoGastos).find(x=>x.id===id);
+  if(!g) return;
+  if(campo==="monto") valor=parseFloat(valor)||0;
+  g[campo]=valor;
+  renderGastoKPIs(); renderGastoCategorias();
+  guardarDatos();
+}
+function renderGastos(){
+  const lista=getMesGastos(mesActivoGastos);
+  const c=document.getElementById("gastos-lista");
+  if(!lista.length){
+    c.innerHTML='<div style="padding:24px;text-align:center;font-family:DM Mono,monospace;font-size:11px;color:var(--soft);">Sin gastos. Clic en <strong>+ Agregar Gasto</strong> o carga los fijos base.</div>';
+    renderGastoKPIs(); renderGastoCategorias(); return;
+  }
+  const catOpts=Object.entries(CATEGORIAS_GASTO).map(([k,l])=>`<option value="${k}">${l}</option>`).join("");
+  c.innerHTML=lista.map(g=>`<div class="gasto-row">
+    <input type="date" value="${g.fecha}" onchange="actualizarGasto('${g.id}','fecha',this.value)">
+    <input type="text" value="${g.concepto||""}" placeholder="Descripción" onchange="actualizarGasto('${g.id}','concepto',this.value)">
+    <select onchange="actualizarGasto('${g.id}','categoria',this.value)">
+      ${Object.entries(CATEGORIAS_GASTO).map(([k,l])=>`<option value="${k}" ${g.categoria===k?"selected":""}>${l}</option>`).join("")}
+    </select>
+    <div style="position:relative;"><span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--soft);pointer-events:none;">$</span>
+      <input type="number" value="${g.monto||0}" style="padding-left:20px;" oninput="actualizarGasto('${g.id}','monto',this.value)"></div>
+    <span onclick="eliminarGasto('${g.id}')" style="cursor:pointer;color:var(--danger);font-size:16px;text-align:center;">✕</span>
+  </div>`).join("");
+  renderGastoKPIs(); renderGastoCategorias();
+}
+function renderGastoKPIs(){
+  const lista=getMesGastos(mesActivoGastos);
+  const total=lista.reduce((a,g)=>a+g.monto,0);
+  const CATS_FIJAS=["renta","nomina","prestamo","contabilidad","servicios","equipo"];
+  const fijos=lista.filter(g=>CATS_FIJAS.includes(g.categoria)).reduce((a,g)=>a+g.monto,0);
+  const vars=total-fijos;
+  const diff=total-260000;
+  document.getElementById("g-total-mes").textContent=fmt(total);
+  document.getElementById("g-fijos-mes").textContent=fmt(fijos);
+  document.getElementById("g-variables-mes").textContent=fmt(vars);
+  const vpEl=document.getElementById("g-vs-presupuesto");
+  vpEl.textContent=Math.abs(diff)<500?"En presupuesto":diff>0?"+ "+fmt(diff)+" sobre":fmt(Math.abs(diff))+" bajo";
+  vpEl.className="kpi-value "+(diff<=0?"success":"danger");
+  document.getElementById("g-total-footer").textContent=fmt(total);
+  document.getElementById("g-conteo").textContent=lista.length+" registros";
+  renderGastoRentabilidad();
+}
+function renderGastoCategorias(){
+  const lista=getMesGastos(mesActivoGastos);
+  const total=lista.reduce((a,g)=>a+g.monto,0);
+  const porCat={};
+  lista.forEach(g=>{ porCat[g.categoria]=(porCat[g.categoria]||0)+g.monto; });
+  const el=document.getElementById("g-por-categoria");
+  if(!el) return;
+  const catData=Object.entries(porCat).sort((a,b)=>b[1]-a[1]);
+  el.innerHTML=catData.length===0?'<div style="font-size:11px;color:var(--soft);">Sin datos.</div>':
+    catData.map(([cat,monto])=>{
+      const pctV=total>0?(monto/total*100):0;
+      return `<div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;font-family:DM Mono,monospace;font-size:10px;margin-bottom:3px;">
+          <span>${CATEGORIAS_GASTO[cat]||cat}</span><span>${fmt(monto)} (${pctV.toFixed(1)}%)</span>
+        </div>
+        <div class="progress-wrap"><div class="progress-fill" style="width:${pctV}%;background:var(--rose);"></div></div>
+      </div>`;
+    }).join("");
+}
+function renderGastoRentabilidad(){
+  const mes=mesActivoGastos;
+  const ventasMes=(ventasPorMes[mes]||[]).reduce((a,v)=>a+v.precio,0);
+  const gastosMes=getMesGastos(mes).reduce((a,g)=>a+g.monto,0);
+  const resultado=ventasMes-gastosMes;
+  const el=document.getElementById("g-rentabilidad");
+  if(!el) return;
+  el.innerHTML=`
+    <div style="margin-bottom:12px;"><div class="kpi-label">Ventas del mes</div>
+      <div class="kpi-value success" style="font-size:22px;">${fmt(ventasMes)}</div></div>
+    <div style="margin-bottom:12px;"><div class="kpi-label">Gastos registrados</div>
+      <div class="kpi-value danger" style="font-size:22px;">${fmt(gastosMes)}</div></div>
+    <div style="border-top:2px solid var(--gold-light);padding-top:12px;">
+      <div class="kpi-label">Resultado real</div>
+      <div class="kpi-value ${resultado>=0?"success":"danger"}" style="font-size:28px;">${resultado>=0?"+ ":"- "}${fmt(Math.abs(resultado))}</div>
+    </div>
+    ${ventasMes===0?'<div class="alert" style="margin-top:10px;margin-bottom:0;">Registra ventas en la pestaña <strong>Ventas del Mes</strong> para la rentabilidad real.</div>':""}`;
+}
+
+// CARGA DATOS EJEMPLO
+function cargarVentasAbril(){
+  const mes="2025-04";
+  ventasPorMes[mes]=[
+    {id:uid(),servicio:"Masaje piernas cansadas",profesional:"Yiss (cosmiatra)",precio:450,pago:"tarjeta",promo:"",insumo:20},
+    {id:uid(),servicio:"Botox",profesional:"Dr. Antonio",precio:4800,pago:"efectivo",promo:"",insumo:800},
+    {id:uid(),servicio:"Botox",profesional:"Dr. Antonio",precio:4800,pago:"efectivo",promo:"",insumo:800},
+    {id:uid(),servicio:"Hydrafacial",profesional:"Yiss (cosmiatra)",precio:1500,pago:"tarjeta",promo:"",insumo:180},
+    {id:uid(),servicio:"Enzimas",profesional:"Dr. Antonio",precio:7000,pago:"efectivo",promo:"",insumo:1500},
+    {id:uid(),servicio:"Sueros + Enzimas",profesional:"Dr. Antonio",precio:12000,pago:"tarjeta",promo:"",insumo:2000},
+    {id:uid(),servicio:"Masaje + Facial",profesional:"Yiss (cosmiatra)",precio:1200,pago:"tarjeta",promo:"Promo L-V",insumo:100},
+    {id:uid(),servicio:"Facial antiage",profesional:"Yiss (cosmiatra)",precio:1500,pago:"tarjeta",promo:"",insumo:200},
+    {id:uid(),servicio:"Presoterapia",profesional:"Yiss (cosmiatra)",precio:450,pago:"tarjeta",promo:"",insumo:20},
+    {id:uid(),servicio:"Consulta Nutrición",profesional:"Dr. Victor",precio:500,pago:"efectivo",promo:"",insumo:0},
+    {id:uid(),servicio:"Consulta + Carnitinas",profesional:"Dr. Victor",precio:1300,pago:"tarjeta",promo:"",insumo:170},
+    {id:uid(),servicio:"Botox",profesional:"Dr. Antonio",precio:4800,pago:"tarjeta",promo:"",insumo:800},
+    {id:uid(),servicio:"Paquete Reductivo",profesional:"Yiss (cosmiatra)",precio:15000,pago:"tarjeta",promo:"Paquete especial",insumo:800},
+    {id:uid(),servicio:"Masaje + Facial",profesional:"Yiss (cosmiatra)",precio:2100,pago:"tarjeta",promo:"",insumo:150},
+    {id:uid(),servicio:"Enzimas",profesional:"Dr. Antonio",precio:7000,pago:"efectivo",promo:"",insumo:1500},
+    {id:uid(),servicio:"Botox",profesional:"Dr. Antonio",precio:4800,pago:"tarjeta",promo:"",insumo:800},
+    {id:uid(),servicio:"Consulta + Medicamento",profesional:"Dr. Victor",precio:6000,pago:"tarjeta",promo:"",insumo:1000},
+    {id:uid(),servicio:"Paquete masajes x10",profesional:"Yiss (cosmiatra)",precio:12000,pago:"tarjeta",promo:"Paquete fidelidad",insumo:600},
+    {id:uid(),servicio:"Botox (Nacho)",profesional:"Cynthia",precio:6500,pago:"tarjeta",promo:"",insumo:1200},
+    {id:uid(),servicio:"Bioestimulador",profesional:"Dr. Antonio",precio:22000,pago:"efectivo",promo:"",insumo:4500},
+    {id:uid(),servicio:"Botox",profesional:"Dr. Antonio",precio:4300,pago:"tarjeta",promo:"Apartado prev.",insumo:800},
+    {id:uid(),servicio:"Botox",profesional:"Dr. Antonio",precio:4300,pago:"tarjeta",promo:"Apartado prev.",insumo:800},
+  ];
+  mesActivoVentas=mes;
+  document.getElementById("ventas-mes-sel").value=mes;
+  renderVentas();
+  guardarDatos();
+}
+function cargarGastosBase(){
+  const lista=getMesGastos(mesActivoGastos);
+  const f=mesActivoGastos+"-01";
+  [{concepto:"Renta local Interlomas",categoria:"renta",monto:86000},
+   {concepto:"Luz y telefonía",categoria:"servicios",monto:3500},
+   {concepto:"Nóminas fijas",categoria:"nomina",monto:52000},
+   {concepto:"Nómina marketing",categoria:"marketing",monto:12000},
+   {concepto:"Préstamo clínica",categoria:"prestamo",monto:60000},
+   {concepto:"Financiamiento equipos",categoria:"equipo",monto:17000},
+   {concepto:"Depreciación equipos",categoria:"equipo",monto:16500},
+   {concepto:"Contabilidad",categoria:"contabilidad",monto:3000},
+   {concepto:"Publicidad impresa",categoria:"marketing",monto:2000},
+   {concepto:"Campañas Meta",categoria:"marketing",monto:8000},
+  ].forEach(g=>lista.push({id:uid(),fecha:f,...g}));
+  renderGastos();
+  guardarDatos();
+}
+
+// ANÁLISIS ANUAL
+function renderAnual(){
+  const meses=["2025-01","2025-02","2025-03","2025-04","2025-05","2025-06",
+               "2025-07","2025-08","2025-09","2025-10","2025-11","2025-12"];
+  const labels=meses.map(m=>MESES_LABELS[parseInt(m.split("-")[1])]);
+  const ventasD=meses.map(m=>(ventasPorMes[m]||[]).reduce((a,v)=>a+v.precio,0));
+  const gastosD=meses.map(m=>(gastosPorMes[m]||[]).reduce((a,g)=>a+g.monto,0));
+  const eq=Array(12).fill(Math.round(260000/0.90));
+  const vAcum=ventasD.reduce((a,b)=>a+b,0);
+  const gAcum=gastosD.reduce((a,b)=>a+b,0);
+  const mDatos=ventasD.filter(v=>v>0).length;
+  document.getElementById("an-ventas-acum").textContent=fmt(vAcum);
+  const gaEl=document.getElementById("an-gastos-acum");gaEl.textContent=fmt(gAcum);gaEl.className="kpi-value danger";
+  const reEl=document.getElementById("an-resultado-acum");reEl.textContent=fmt(vAcum-gAcum);reEl.className="kpi-value "+(vAcum>=gAcum?"success":"danger");
+  document.getElementById("an-meses-datos").textContent=mDatos;
+
+  const gold="rgba(201,169,110,0.85)",goldL="rgba(201,169,110,0.15)";
+  const rose="rgba(196,132,122,0.85)",roseL="rgba(196,132,122,0.15)";
+  const green="rgba(122,158,126,0.85)";
+  const chartOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:"DM Mono, monospace",size:10},padding:10}}},
+    scales:{y:{ticks:{callback:v=>"$"+Math.round(v/1000)+"k",font:{family:"DM Mono, monospace",size:9}},grid:{color:"rgba(0,0,0,0.04)"}},
+            x:{ticks:{font:{family:"DM Mono, monospace",size:10}}}}};
+
+  if(chartVentas){chartVentas.destroy();chartVentas=null;}
+  const ctx1=document.getElementById("chart-ventas-mensual");
+  if(ctx1) chartVentas=new Chart(ctx1,{type:"bar",
+    data:{labels,datasets:[
+      {label:"Ventas",data:ventasD,backgroundColor:goldL,borderColor:gold,borderWidth:2,borderRadius:2},
+      {label:"Punto equilibrio",data:eq,type:"line",borderColor:rose,borderWidth:2,pointRadius:3,fill:false,tension:0.1}
+    ]},options:chartOpts});
+
+  if(chartVG){chartVG.destroy();chartVG=null;}
+  const ctx2=document.getElementById("chart-ventas-gastos");
+  if(ctx2) chartVG=new Chart(ctx2,{type:"line",
+    data:{labels,datasets:[
+      {label:"Ventas",data:ventasD,borderColor:gold,backgroundColor:goldL,borderWidth:2,fill:true,tension:0.3,pointRadius:4},
+      {label:"Gastos",data:gastosD,borderColor:rose,backgroundColor:roseL,borderWidth:2,fill:true,tension:0.3,pointRadius:4}
+    ]},options:{...chartOpts}});
+
+  const profTotales={};
+  PROFESIONALES.forEach(p=>profTotales[p]=0);
+  Object.values(ventasPorMes).flat().forEach(v=>{
+    if(profTotales[v.profesional]!==undefined) profTotales[v.profesional]+=v.precio;
+    else profTotales["Otro"]+=v.precio;
+  });
+  const profFilt=Object.entries(profTotales).filter(([,v])=>v>0);
+  if(chartProf){chartProf.destroy();chartProf=null;}
+  const ctx3=document.getElementById("chart-profesionales");
+  if(ctx3&&profFilt.length) chartProf=new Chart(ctx3,{type:"doughnut",
+    data:{labels:profFilt.map(([p])=>p),datasets:[{data:profFilt.map(([,v])=>v),
+      backgroundColor:["rgba(196,132,122,0.85)","rgba(122,158,126,0.85)","rgba(201,169,110,0.85)","rgba(156,139,130,0.85)","rgba(106,90,158,0.85)"],
+      borderWidth:2,borderColor:"white"}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{font:{family:"DM Mono, monospace",size:10},padding:10}}}}});
+
+  const tbody=document.getElementById("an-tabla-resumen");
+  if(tbody) tbody.innerHTML=`<tr><th>Mes</th><th>Ventas</th><th>Gastos</th><th>Margen bruto est.</th><th>vs. Equilibrio</th><th>Resultado</th></tr>`+
+    meses.map((m,i)=>{
+      const v=ventasD[i],g=gastosD[i],eqV=eq[0],res=v-g;
+      if(v===0&&g===0) return `<tr><td>${labels[i]}</td><td colspan="5" style="color:var(--soft);font-size:10px;font-family:DM Mono,monospace;">Sin datos</td></tr>`;
+      const diff=v-eqV;
+      return `<tr><td><strong>${labels[i]}</strong></td>
+        <td style="color:var(--success);">${fmt(v)}</td><td style="color:var(--danger);">${fmt(g)}</td>
+        <td>${fmt(v*0.62)}</td>
+        <td><span class="pill ${diff>=0?"green":"red"}">${diff>=0?"+":"-"}${fmt(Math.abs(diff))}</span></td>
+        <td><span class="pill ${res>=0?"green":"red"}">${fmt(res)}</span></td></tr>`;
+    }).join("");
+}
+
+// EXTEND showPanel para nuevos paneles
+const _showPanelOrig = showPanel;
+window.showPanel = function(id, el){
+  _showPanelOrig(id, el);
+  if(id==="ventas") renderVentas();
+  if(id==="gastos") renderGastos();
+  if(id==="anual") renderAnual();
+};
+
+
+// ═══════════════════════════════════════════════════════════════
+// PERSISTENCIA — localStorage + export/import
+// ═══════════════════════════════════════════════════════════════
+const STORAGE_KEY = "aestheva_v3_data";
+
+function guardarDatos(){
+  try {
+    const data = {
+      productos, serviciosCat,
+      ventasPorMes, gastosPorMes,
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    mostrarIndicador("✓ Guardado");
+    actualizarUltimoGuardado(data.savedAt);
+  } catch(e){ mostrarIndicador("⚠ Error al guardar"); }
+}
+
+function cargarDatos(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return false;
+    const data = JSON.parse(raw);
+    if(data.productos)    productos    = data.productos;
+    if(data.serviciosCat) serviciosCat = data.serviciosCat;
+    if(data.ventasPorMes) ventasPorMes = data.ventasPorMes;
+    if(data.gastosPorMes) gastosPorMes = data.gastosPorMes;
+    if(data.savedAt) actualizarUltimoGuardado(data.savedAt);
+    return true;
+  } catch(e){ return false; }
+}
+
+function mostrarIndicador(msg){
+  const el = document.getElementById("save-indicator");
+  if(!el) return;
+  el.textContent = msg;
+  el.style.color = msg.startsWith("✓") ? "var(--success)" : "var(--warning)";
+  clearTimeout(window._saveTimer);
+  window._saveTimer = setTimeout(()=>{ el.textContent=""; }, 2500);
+}
+
+function actualizarUltimoGuardado(isoStr){
+  const el = document.getElementById("ultimo-guardado");
+  if(!el||!isoStr) return;
+  const d = new Date(isoStr);
+  const hora = d.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});
+  const fecha = d.toLocaleDateString("es-MX",{day:"2-digit",month:"short"});
+  el.textContent = "Último guardado: "+fecha+" "+hora;
+}
+
+function exportarDatos(){
+  try {
+    const data = {
+      productos, serviciosCat, ventasPorMes, gastosPorMes,
+      exportadoEn: new Date().toISOString(),
+      version: "aestheva-v3"
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const fecha = new Date().toISOString().slice(0,10);
+    a.href = url;
+    a.download = "aestheva-respaldo-"+fecha+".json";
+    a.click();
+    URL.revokeObjectURL(url);
+    mostrarIndicador("✓ Respaldo descargado");
+  } catch(e){ alert("Error al exportar: "+e.message); }
+}
+
+function importarDatos(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      const data = JSON.parse(e.target.result);
+      if(data.version !== "aestheva-v3"){
+        if(!confirm("Este archivo puede ser de una versión diferente. ¿Continuar de todas formas?")) return;
+      }
+      if(data.productos)    productos    = data.productos;
+      if(data.serviciosCat) serviciosCat = data.serviciosCat;
+      if(data.ventasPorMes) ventasPorMes = data.ventasPorMes;
+      if(data.gastosPorMes) gastosPorMes = data.gastosPorMes;
+      // Re-render everything
+      renderInventario();
+      renderRecetas();
+      actualizarCatalogosServicio();
+      actualizarSelectsProductos();
+      actualizarDashboard();
+      renderVentas();
+      renderGastos();
+      guardarDatos();
+      mostrarIndicador("✓ Datos importados correctamente");
+      alert("✅ Datos importados correctamente. Se cargaron:\n• "+productos.length+" productos\n• "+serviciosCat.length+" servicios\n• "+Object.keys(ventasPorMes).filter(m=>(ventasPorMes[m]||[]).length>0).length+" meses con ventas\n• "+Object.keys(gastosPorMes).filter(m=>(gastosPorMes[m]||[]).length>0).length+" meses con gastos");
+    } catch(err){ alert("Error al importar el archivo: "+err.message); }
+  };
+  reader.readAsText(file);
+  event.target.value=""; // reset input
+}
+
+// ── AUTOGUARDADO — parchamos todas las funciones que modifican datos ──
+function _autoSave(fn){
+  return function(){
+    const result = fn.apply(this, arguments);
+    guardarDatos();
+    return result;
+  };
+}
+
+window.onload=()=>{
+  // Cargar datos guardados primero
+  const tieneGuardado = cargarDatos();
+  if(tieneGuardado){
+    mostrarIndicador("✓ Datos recuperados");
+  }
+  // Inicializar módulos
+  calcEquilibrio();calcMeta();calcCapacidad();initDepr();actualizarDesc();
+  actualizarDashboard();actualizarCatalogosServicio();actualizarSelectsProductos();
+  renderRecetas();renderVentas();renderGastos();
+};
+</script>
+</body>
+</html>
