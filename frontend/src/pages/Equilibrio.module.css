@@ -22,5 +22,5 @@
 
 .noConfig { background: #fff8e1; border: 1px solid #ffe082; border-radius: var(--radius-sm); padding: 14px 18px; font-size: 13px; color: #795500; margin-bottom: 20px; }
 
-.periodSelector { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.periodSelector { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
 .periodSelector select { padding: 8px 12px; border: 1px solid var(--cream-dark); border-radius: var(--radius-sm); font-size: 13px; background: var(--white); }

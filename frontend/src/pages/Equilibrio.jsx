@@ -6,10 +6,17 @@ const fmt = (n) => Number(n ?? 0).toLocaleString("es-MX", { minimumFractionDigit
 const fmtPct = (n) => Number(n ?? 0).toFixed(1) + "%";
 const formatMonth = (d) => new Date(d + "T12:00:00").toLocaleDateString("es-MX", { month: "long", year: "numeric" });
 
+const HORIZONS = [
+  { key: "mensual",     label: "Mensual",     multiplier: 1  },
+  { key: "trimestral",  label: "Trimestral",  multiplier: 3  },
+  { key: "anual",       label: "Anual",       multiplier: 12 },
+];
+
 export default function Equilibrio() {
   const [periods, setPeriods] = useState([]);
   const [selectedPeriodId, setSelectedPeriodId] = useState("");
   const [result, setResult] = useState(null);
+  const [horizon, setHorizon] = useState("mensual");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -45,6 +52,10 @@ export default function Equilibrio() {
 
   const r = result;
   const hasFixed = r?.fixed_monthly_cost != null;
+  const mult = HORIZONS.find((h) => h.key === horizon)?.multiplier ?? 1;
+  const scaledFixed = hasFixed ? Number(r.fixed_monthly_cost) * mult : null;
+  const scaledRevenue = r?.breakeven_revenue != null ? Number(r.breakeven_revenue) * mult : null;
+  const scaledVisits = r?.breakeven_visits != null ? Math.ceil(Number(r.breakeven_visits) * mult) : null;
 
   return (
     <div className={styles.container}>
@@ -63,12 +74,32 @@ export default function Equilibrio() {
       )}
 
       <div className={styles.periodSelector}>
-        <label style={{ fontSize: 13, fontWeight: 500 }}>Período:</label>
+        <label style={{ fontSize: 13, fontWeight: 500 }}>Período base:</label>
         <select value={selectedPeriodId} onChange={(e) => handlePeriodChange(e.target.value)}>
           {periods.map((p) => (
             <option key={p.id} value={p.id}>{formatMonth(p.period_month)}</option>
           ))}
         </select>
+
+        <label style={{ fontSize: 13, fontWeight: 500, marginLeft: 16 }}>Horizonte:</label>
+        <div style={{ display: "flex", gap: 6 }}>
+          {HORIZONS.map((h) => (
+            <button
+              key={h.key}
+              onClick={() => setHorizon(h.key)}
+              style={{
+                padding: "6px 16px", fontSize: 13, borderRadius: 20, border: "1px solid",
+                cursor: "pointer", transition: "all 0.15s",
+                background: horizon === h.key ? "var(--deep)" : "var(--white)",
+                color: horizon === h.key ? "var(--gold)" : "var(--text)",
+                borderColor: horizon === h.key ? "var(--deep)" : "var(--cream-dark)",
+                fontWeight: horizon === h.key ? 600 : 400,
+              }}
+            >
+              {h.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {r && (
@@ -92,8 +123,8 @@ export default function Equilibrio() {
             </div>
             {hasFixed && (
               <div className={styles.metric}>
-                <span className={styles.metricLabel}>Costo fijo mensual</span>
-                <span className={styles.metricValue}>${fmt(r.fixed_monthly_cost)}</span>
+                <span className={styles.metricLabel}>Costo fijo ({horizon})</span>
+                <span className={styles.metricValue}>${fmt(scaledFixed)}</span>
               </div>
             )}
           </div>
@@ -104,17 +135,15 @@ export default function Equilibrio() {
             {hasFixed ? (
               <>
                 <div className={styles.metric}>
-                  <span className={styles.metricLabel}>Ventas necesarias para equilibrio</span>
+                  <span className={styles.metricLabel}>Ventas necesarias ({horizon})</span>
                   <span className={`${styles.metricValueBig} ${styles.metricValueAccent}`}>
-                    ${fmt(r.breakeven_revenue)}
+                    ${fmt(scaledRevenue)}
                   </span>
                 </div>
-                {r.breakeven_visits != null && (
+                {scaledVisits != null && (
                   <div className={styles.metric}>
-                    <span className={styles.metricLabel}>Visitas necesarias (aprox.)</span>
-                    <span className={styles.metricValueBig}>
-                      {Math.ceil(Number(r.breakeven_visits))}
-                    </span>
+                    <span className={styles.metricLabel}>Visitas necesarias ({horizon})</span>
+                    <span className={styles.metricValueBig}>{scaledVisits}</span>
                   </div>
                 )}
               </>
@@ -125,11 +154,11 @@ export default function Equilibrio() {
             )}
           </div>
 
-          {hasFixed && r.breakeven_revenue != null && (
+          {hasFixed && scaledRevenue != null && (
             <div className={styles.highlight}>
               <div className={styles.hlItem}>
                 <div className={styles.hlLabel}>Ventas para equilibrio</div>
-                <div className={styles.hlValue}>${fmt(r.breakeven_revenue)}</div>
+                <div className={styles.hlValue}>${fmt(scaledRevenue)}</div>
               </div>
               <div className={styles.hlItem}>
                 <div className={styles.hlLabel}>Margen de contribución</div>
@@ -137,9 +166,7 @@ export default function Equilibrio() {
               </div>
               <div className={styles.hlItem}>
                 <div className={styles.hlLabel}>Visitas mínimas</div>
-                <div className={styles.hlValue}>
-                  {r.breakeven_visits != null ? Math.ceil(Number(r.breakeven_visits)) : "—"}
-                </div>
+                <div className={styles.hlValue}>{scaledVisits ?? "—"}</div>
               </div>
             </div>
           )}
