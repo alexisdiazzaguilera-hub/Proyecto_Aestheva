@@ -8,6 +8,7 @@ import Equilibrio from "./pages/Equilibrio";
 import Gastos from "./pages/Gastos";
 import Inventario from "./pages/Inventario";
 import Login from "./pages/Login";
+import Profesionales from "./pages/Profesionales";
 import Servicios from "./pages/Servicios";
 import Simulador from "./pages/Simulador";
 import Ventas from "./pages/Ventas";
@@ -59,6 +60,11 @@ export default function App() {
       <Route path="/anual" element={
         <ProtectedRoute adminOnly>
           <Layout user={user}><Anual /></Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/profesionales" element={
+        <ProtectedRoute adminOnly>
+          <Layout user={user}><Profesionales /></Layout>
         </ProtectedRoute>
       } />
       <Route path="/configuracion" element={

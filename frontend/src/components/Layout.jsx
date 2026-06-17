@@ -31,6 +31,7 @@ export default function Layout({ user, children }) {
               <div className={styles.navDivider} />
               <a href="/servicios" className={styles.navItem}>Servicios</a>
               <a href="/inventario" className={styles.navItem}>Inventario</a>
+              <a href="/profesionales" className={styles.navItem}>Profesionales</a>
               <div className={styles.navDivider} />
               <a href="/configuracion" className={styles.navItem}>Configuración</a>
             </>
