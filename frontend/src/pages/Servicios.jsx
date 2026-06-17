@@ -15,9 +15,12 @@ export default function Servicios({ user }) {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const [recipeModal, setRecipeModal] = useState(null);
+  const [equipModal, setEquipModal] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [equipForm, setEquipForm] = useState({ name: "", acquisition_cost: "", useful_life_months: "24", monthly_sessions_default: "30" });
+  const [savingEquip, setSavingEquip] = useState(false);
 
   async function load() {
     try {
@@ -57,6 +60,20 @@ export default function Servicios({ user }) {
   }
 
   const f = (v) => setForm((prev) => ({ ...prev, ...v }));
+
+  async function handleSaveEquip(e) {
+    e.preventDefault();
+    setSavingEquip(true);
+    try {
+      const body = { name: equipForm.name, acquisition_cost: Number(equipForm.acquisition_cost), useful_life_months: Number(equipForm.useful_life_months), monthly_sessions_default: Number(equipForm.monthly_sessions_default) };
+      const created = await api.post("/equipment/", body);
+      setEquipment((prev) => [...prev, created]);
+      f({ equipment_id: created.id });
+      setEquipModal(false);
+      setEquipForm({ name: "", acquisition_cost: "", useful_life_months: "24", monthly_sessions_default: "30" });
+    } catch (e) { alert(e.message); }
+    finally { setSavingEquip(false); }
+  }
 
   if (loading) return <div className="spinner" />;
 
@@ -126,10 +143,13 @@ export default function Servicios({ user }) {
                 <FormField label="Costo variable adicional ($)" hint="Materiales desechables, guantes, etc."><input type="number" step="0.01" min="0" value={form.variable_cost} onChange={(e) => f({ variable_cost: e.target.value })} /></FormField>
               </div>
               <FormField label="Equipo (opcional)">
-                <select value={form.equipment_id} onChange={(e) => f({ equipment_id: e.target.value })}>
-                  <option value="">Sin equipo</option>
-                  {equipment.map((eq) => <option key={eq.id} value={eq.id}>{eq.name}</option>)}
-                </select>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <select value={form.equipment_id} onChange={(e) => f({ equipment_id: e.target.value })} style={{ flex: 1 }}>
+                    <option value="">Sin equipo</option>
+                    {equipment.map((eq) => <option key={eq.id} value={eq.id}>{eq.name}</option>)}
+                  </select>
+                  <button type="button" onClick={() => setEquipModal(true)} title="Agregar nuevo equipo" style={{ padding: "0 14px", background: "var(--cream-dark)", border: "1px solid var(--gold-light)", borderRadius: "var(--radius-sm)", color: "var(--gold-dark)", fontWeight: 600, fontSize: 18 }}>+</button>
+                </div>
               </FormField>
               {error && <p style={{ color: "var(--danger)", fontSize: 13 }}>{error}</p>}
               <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
@@ -143,6 +163,25 @@ export default function Servicios({ user }) {
 
       {recipeModal && (
         <RecipeModal service={recipeModal} onClose={() => { setRecipeModal(null); load(); }} />
+      )}
+
+      {equipModal && (
+        <Modal title="Nuevo Equipo" onClose={() => setEquipModal(false)}>
+          <form onSubmit={handleSaveEquip}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <FormField label="Nombre del equipo"><input value={equipForm.name} onChange={(e) => setEquipForm((p) => ({ ...p, name: e.target.value }))} placeholder="Ej: Hydrafacial, Radiofrecuencia..." required /></FormField>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <FormField label="Costo de adquisición ($)" hint="Para calcular depreciación"><input type="number" step="0.01" min="0" value={equipForm.acquisition_cost} onChange={(e) => setEquipForm((p) => ({ ...p, acquisition_cost: e.target.value }))} /></FormField>
+                <FormField label="Vida útil (meses)"><input type="number" min="1" value={equipForm.useful_life_months} onChange={(e) => setEquipForm((p) => ({ ...p, useful_life_months: e.target.value }))} /></FormField>
+              </div>
+              <FormField label="Sesiones promedio por mes" hint="Para calcular costo por sesión"><input type="number" min="1" value={equipForm.monthly_sessions_default} onChange={(e) => setEquipForm((p) => ({ ...p, monthly_sessions_default: e.target.value }))} /></FormField>
+              <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+                <button type="button" className="btn-secondary" onClick={() => setEquipModal(false)}>Cancelar</button>
+                <button type="submit" className="btn-primary" disabled={savingEquip}>{savingEquip ? "Guardando..." : "Agregar Equipo"}</button>
+              </div>
+            </div>
+          </form>
+        </Modal>
       )}
     </div>
   );
