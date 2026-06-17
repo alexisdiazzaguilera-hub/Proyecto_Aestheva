@@ -32,7 +32,7 @@ async def get_db_with_role(
     db: AsyncSession = Depends(get_db),
 ) -> AsyncSession:
     """Inyecta el rol del usuario en la sesión de PostgreSQL para que RLS funcione."""
-    await db.execute(text("SET LOCAL app.current_role = :role"), {"role": current_user.role})
+    await db.execute(text("SELECT set_config('app.current_role', :role, true)"), {"role": current_user.role})
     return db
 
 
