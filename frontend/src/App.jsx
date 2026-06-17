@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import Anual from "./pages/Anual";
+import Configuracion from "./pages/Configuracion";
 import Dashboard from "./pages/Dashboard";
 import Depreciacion from "./pages/Depreciacion";
 import Equilibrio from "./pages/Equilibrio";
@@ -58,6 +59,11 @@ export default function App() {
       <Route path="/anual" element={
         <ProtectedRoute adminOnly>
           <Layout user={user}><Anual /></Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/configuracion" element={
+        <ProtectedRoute adminOnly>
+          <Layout user={user}><Configuracion /></Layout>
         </ProtectedRoute>
       } />
       <Route path="/depreciacion" element={

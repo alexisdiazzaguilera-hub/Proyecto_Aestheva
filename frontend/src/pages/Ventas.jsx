@@ -271,16 +271,16 @@ export default function Ventas({ user }) {
                 </FormField>
               </div>
 
-              {isAdmin && (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                  <FormField label="Costo insumos estimado ($)">
-                    <input type="number" step="0.01" min="0" value={form.supply_cost_est} onChange={(e) => f({ supply_cost_est: e.target.value })} />
-                  </FormField>
+              <div style={{ display: "grid", gridTemplateColumns: isAdmin ? "1fr 1fr" : "1fr", gap: 12 }}>
+                <FormField label="Costo insumos / productos usados ($)">
+                  <input type="number" step="0.01" min="0" value={form.supply_cost_est} onChange={(e) => f({ supply_cost_est: e.target.value })} placeholder="0.00" />
+                </FormField>
+                {isAdmin && (
                   <FormField label="Promo / etiqueta">
                     <input value={form.promo_tag} onChange={(e) => f({ promo_tag: e.target.value })} placeholder="Ej: Paquete, Cortesía..." />
                   </FormField>
-                </div>
-              )}
+                )}
+              </div>
 
               <FormField label="Notas (opcional)">
                 <input value={form.notes} onChange={(e) => f({ notes: e.target.value })} />
