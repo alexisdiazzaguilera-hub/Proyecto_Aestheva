@@ -1,0 +1,81 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--cream) 0%, var(--cream-dark) 100%);
+  padding: 20px;
+}
+
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 48px 40px;
+  box-shadow: var(--shadow-hover);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.brand {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 42px;
+  font-weight: 300;
+  letter-spacing: 6px;
+  color: var(--deep);
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  color: var(--text-light);
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 36px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-align: left;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: var(--text-light);
+  text-transform: uppercase;
+}
+
+.field input {
+  padding: 10px 14px;
+  border: 1px solid var(--gold-light);
+  border-radius: var(--radius-sm);
+  background: var(--cream);
+  color: var(--text);
+  transition: var(--transition);
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--gold);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.15);
+}
+
+.error {
+  background: #fff0f0;
+  color: var(--danger);
+  border: 1px solid #f8c8c8;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+}
