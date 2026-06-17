@@ -3,6 +3,7 @@ import Layout from "./components/Layout";
 import Inventario from "./pages/Inventario";
 import Login from "./pages/Login";
 import Servicios from "./pages/Servicios";
+import Ventas from "./pages/Ventas";
 
 function getUser() {
   try { return JSON.parse(localStorage.getItem("aestheva_user")); }
@@ -33,7 +34,12 @@ export default function App() {
           <Layout user={user}><Inventario /></Layout>
         </ProtectedRoute>
       } />
-      <Route path="/" element={<Navigate to="/servicios" replace />} />
+      <Route path="/ventas" element={
+        <ProtectedRoute>
+          <Layout user={user}><Ventas user={user} /></Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/" element={<Navigate to="/ventas" replace />} />
       <Route path="*" element={<Navigate to="/servicios" replace />} />
     </Routes>
   );
