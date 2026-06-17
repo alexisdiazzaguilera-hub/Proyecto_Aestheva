@@ -75,7 +75,7 @@ export default function App() {
           <Layout user={user}><Simulador /></Layout>
         </ProtectedRoute>
       } />
-      <Route path="/" element={<Navigate to="/ventas" replace /> />
+      <Route path="/" element={<Navigate to="/ventas" replace />} />
       <Route path="*" element={<Navigate to="/servicios" replace />} />
     </Routes>
   );
