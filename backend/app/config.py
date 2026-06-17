@@ -8,6 +8,11 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 480
     environment: str = "development"
+    allowed_origins: str = "http://localhost:5173,http://localhost:3000"
+
+    @property
+    def cors_origins(self) -> list[str]:
+        return [o.strip() for o in self.allowed_origins.split(",") if o.strip()]
 
     class Config:
         env_file = ".env"
