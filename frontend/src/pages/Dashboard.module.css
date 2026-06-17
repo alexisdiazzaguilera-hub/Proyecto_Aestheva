@@ -1,0 +1,30 @@
+.container { padding: 32px; max-width: 1100px; margin: 0 auto; }
+.header { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+.header h2 { font-size: 28px; flex: 1; }
+.periodSelect { padding: 7px 12px; border: 1px solid var(--gold-light); border-radius: var(--radius-sm); background: var(--white); color: var(--text); font-size: 13px; }
+.error { background: #fff0f0; color: var(--danger); border: 1px solid #f8c8c8; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; margin-bottom: 16px; }
+
+.kpiGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px; }
+.kpiCard { background: var(--white); border-radius: var(--radius); padding: 22px 24px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 4px; }
+.kpiLabel { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light); }
+.kpiValue { font-size: 28px; font-weight: 400; font-family: "Cormorant Garamond", serif; color: var(--deep); line-height: 1.2; }
+.kpiSub { font-size: 12px; color: var(--text-light); }
+
+.positive { color: var(--success) !important; }
+.warning  { color: var(--warning) !important; }
+.negative { color: var(--danger) !important; }
+
+.section { background: var(--white); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 20px; }
+.section h3 { font-size: 18px; margin-bottom: 16px; }
+
+.breakdown { display: flex; flex-direction: column; gap: 0; }
+.breakdownRow { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--cream-dark); font-size: 14px; }
+.breakdownRow:last-child { border-bottom: none; }
+.total { font-weight: 600; color: var(--deep); padding-top: 12px; }
+
+.alertList { display: flex; flex-direction: column; gap: 8px; }
+.alertRow { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #fff8f0; border: 1px solid #f8d8b0; border-radius: var(--radius-sm); }
+.alertName { font-size: 13px; font-weight: 500; }
+.alertStock { font-size: 12px; font-weight: 600; color: var(--danger); }
+
+.configHint { background: var(--cream-dark); border: 1px solid var(--gold-light); border-radius: var(--radius-sm); padding: 14px 18px; font-size: 13px; color: var(--text-light); }

@@ -53,6 +53,8 @@
   text-decoration: none;
 }
 
+.navDivider { height: 1px; background: rgba(201,169,110,0.2); margin: 8px 0; }
+
 .navItem:hover, .navItem.active {
   background: rgba(201, 169, 110, 0.15);
   color: var(--gold);

@@ -1,0 +1,29 @@
+.container { padding: 32px; max-width: 1100px; margin: 0 auto; }
+.container h2 { font-size: 28px; margin-bottom: 24px; }
+.error { background: #fff0f0; color: var(--danger); border: 1px solid #f8c8c8; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; margin-bottom: 16px; }
+.empty { background: var(--white); border-radius: var(--radius); padding: 40px; text-align: center; color: var(--text-light); box-shadow: var(--shadow); }
+
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+.summaryCard { background: var(--white); border-radius: var(--radius); padding: 20px 24px; box-shadow: var(--shadow); }
+.summaryLabel { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light); margin-bottom: 6px; }
+.summaryValue { font-size: 24px; font-weight: 400; font-family: "Cormorant Garamond", serif; color: var(--deep); }
+
+.positive .summaryValue { color: var(--success); }
+.negative .summaryValue { color: var(--danger); }
+
+.tableWrapper { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: auto; }
+.table { width: 100%; border-collapse: collapse; min-width: 700px; }
+.table th { background: var(--cream-dark); padding: 11px 14px; text-align: left; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--text-light); }
+.table td { padding: 12px 14px; border-bottom: 1px solid var(--cream-dark); font-size: 13px; }
+.table tr:hover td { background: var(--cream); }
+.totalsRow td { background: var(--cream-dark) !important; border-top: 2px solid var(--gold-light); }
+
+.month { font-weight: 500; }
+.center { text-align: center; }
+.money { font-weight: 500; }
+.positive { color: var(--success); font-weight: 600; }
+.negative { color: var(--danger); font-weight: 600; }
+.pct { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.good { background: #e8f5e8; color: var(--success); }
+.warn { background: #fff8e1; color: var(--warning); }
+.bad  { background: #fff0f0; color: var(--danger); }

@@ -20,9 +20,18 @@ export default function Layout({ user, children }) {
 
         <nav className={styles.nav}>
           <a href="/ventas" className={styles.navItem}>Ventas del Mes</a>
-          <a href="/servicios" className={styles.navItem}>Servicios</a>
           {user?.role === "administrador" && (
-            <a href="/inventario" className={styles.navItem}>Inventario</a>
+            <>
+              <a href="/gastos" className={styles.navItem}>Gastos</a>
+              <a href="/dashboard" className={styles.navItem}>Dashboard</a>
+              <a href="/anual" className={styles.navItem}>Análisis Anual</a>
+              <div className={styles.navDivider} />
+              <a href="/servicios" className={styles.navItem}>Servicios</a>
+              <a href="/inventario" className={styles.navItem}>Inventario</a>
+            </>
+          )}
+          {user?.role !== "administrador" && (
+            <a href="/servicios" className={styles.navItem}>Servicios</a>
           )}
         </nav>
 

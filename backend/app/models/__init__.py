@@ -8,3 +8,4 @@ from app.models.config_param import ConfigParam
 from app.models.client import Client, ClientToken
 from app.models.period import Period
 from app.models.sale import Sale
+from app.models.expense import Expense
