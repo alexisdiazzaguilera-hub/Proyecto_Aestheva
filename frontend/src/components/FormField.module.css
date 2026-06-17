@@ -1,0 +1,36 @@
+.field { display: flex; flex-direction: column; gap: 6px; }
+
+.label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-light);
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+.field input,
+.field select,
+.field textarea {
+  padding: 9px 12px;
+  border: 1px solid var(--gold-light);
+  border-radius: var(--radius-sm);
+  background: var(--cream);
+  color: var(--text);
+  transition: var(--transition);
+  width: 100%;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.15);
+}

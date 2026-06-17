@@ -19,10 +19,10 @@ export default function Layout({ user, children }) {
         </div>
 
         <nav className={styles.nav}>
-          <a href="/" className={styles.navItem}>
-            <span>Catálogo</span>
-          </a>
-          {/* Fase 2+ agregará más ítems */}
+          <a href="/servicios" className={styles.navItem}>Servicios</a>
+          {user?.role === "administrador" && (
+            <a href="/inventario" className={styles.navItem}>Inventario</a>
+          )}
         </nav>
 
         <div className={styles.user}>

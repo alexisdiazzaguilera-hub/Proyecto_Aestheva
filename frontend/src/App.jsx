@@ -1,19 +1,19 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
-import Catalogo from "./pages/Catalogo";
+import Inventario from "./pages/Inventario";
 import Login from "./pages/Login";
+import Servicios from "./pages/Servicios";
 
 function getUser() {
-  try {
-    return JSON.parse(localStorage.getItem("aestheva_user"));
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(localStorage.getItem("aestheva_user")); }
+  catch { return null; }
 }
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children, adminOnly = false }) {
   const token = localStorage.getItem("aestheva_token");
+  const user = getUser();
   if (!token) return <Navigate to="/login" replace />;
+  if (adminOnly && user?.role !== "administrador") return <Navigate to="/servicios" replace />;
   return children;
 }
 
@@ -23,17 +23,18 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Layout user={user}>
-              <Catalogo user={user} />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/servicios" element={
+        <ProtectedRoute>
+          <Layout user={user}><Servicios user={user} /></Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/inventario" element={
+        <ProtectedRoute adminOnly>
+          <Layout user={user}><Inventario /></Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/" element={<Navigate to="/servicios" replace />} />
+      <Route path="*" element={<Navigate to="/servicios" replace />} />
     </Routes>
   );
 }
