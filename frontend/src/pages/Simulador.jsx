@@ -12,7 +12,7 @@ export default function Simulador() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    api.get("/services").catch((e) => setError(e.message)).then((data) => {
+    api.get("/services/catalog").catch((e) => setError(e.message)).then((data) => {
       if (!data) return;
       setServices(data);
       if (data.length > 0) setSelectedId(data[0].id);
