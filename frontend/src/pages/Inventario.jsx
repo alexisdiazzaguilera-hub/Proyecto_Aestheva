@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api/client";
+import ExportButton from "../components/ExportButton";
 import FormField from "../components/FormField";
 import Modal from "../components/Modal";
 import styles from "./Inventario.module.css";
@@ -83,7 +84,11 @@ export default function Inventario() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h2>Inventario de Productos</h2>
-        <button className="btn-primary" onClick={openCreate}>+ Nuevo Producto</button>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <ExportButton endpoint="/exports/products" filename="productos" format="csv" label="CSV" />
+          <ExportButton endpoint="/exports/products" filename="productos" format="json" label="JSON" />
+          <button className="btn-primary" onClick={openCreate}>+ Nuevo Producto</button>
+        </div>
       </div>
 
       <div className={styles.filters}>

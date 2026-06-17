@@ -25,6 +25,9 @@ export default function Layout({ user, children }) {
               <a href="/gastos" className={styles.navItem}>Gastos</a>
               <a href="/dashboard" className={styles.navItem}>Dashboard</a>
               <a href="/anual" className={styles.navItem}>Análisis Anual</a>
+              <a href="/depreciacion" className={styles.navItem}>Depreciación</a>
+              <a href="/equilibrio" className={styles.navItem}>Punto de Equilibrio</a>
+              <a href="/simulador" className={styles.navItem}>Simulador Descuentos</a>
               <div className={styles.navDivider} />
               <a href="/servicios" className={styles.navItem}>Servicios</a>
               <a href="/inventario" className={styles.navItem}>Inventario</a>

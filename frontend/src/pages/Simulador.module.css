@@ -1,0 +1,31 @@
+.container { padding: 32px; max-width: 900px; margin: 0 auto; }
+.container h2 { font-size: 28px; margin-bottom: 8px; }
+.subtitle { font-size: 13px; color: var(--text-light); margin-bottom: 28px; }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px 28px; }
+.card h3 { font-size: 13px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--text-light); margin-bottom: 20px; }
+
+.formGroup { margin-bottom: 16px; }
+.formGroup label { display: block; font-size: 12px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-light); margin-bottom: 6px; }
+.formGroup input, .formGroup select { width: 100%; padding: 9px 12px; border: 1px solid var(--cream-dark); border-radius: var(--radius-sm); font-size: 14px; background: var(--white); }
+.formGroup input:focus, .formGroup select:focus { outline: none; border-color: var(--gold); }
+
+.result { margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--cream-dark); }
+.metric { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+.metricLabel { font-size: 13px; color: var(--text); }
+.metricValue { font-size: 18px; font-family: "Cormorant Garamond", serif; color: var(--deep); }
+.metricValueAccent { color: var(--gold); font-size: 28px; }
+.metricValueDanger { color: var(--danger); }
+.metricValueGood { color: var(--success); }
+
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.badgeGood { background: #e8f5e8; color: var(--success); }
+.badgeWarn { background: #fff8e1; color: var(--warning); }
+.badgeBad  { background: #fff0f0; color: var(--danger); }
+
+.serviceTable { width: 100%; border-collapse: collapse; }
+.serviceTable th { font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--text-light); padding: 8px 0; border-bottom: 1px solid var(--cream-dark); text-align: left; }
+.serviceTable td { padding: 10px 0; font-size: 13px; border-bottom: 1px solid var(--cream-dark); }
+.serviceTable tr:last-child td { border-bottom: none; }
+.discountInput { width: 70px; padding: 4px 8px; border: 1px solid var(--cream-dark); border-radius: var(--radius-sm); font-size: 13px; text-align: right; }

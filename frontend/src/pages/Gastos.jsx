@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api/client";
+import ExportButton from "../components/ExportButton";
 import FormField from "../components/FormField";
 import Modal from "../components/Modal";
 import styles from "./Gastos.module.css";
@@ -82,7 +83,17 @@ export default function Gastos() {
             {periods.map((p) => <option key={p.id} value={p.id}>{formatMonth(p.period_month)}</option>)}
           </select>
         </div>
-        {!currentPeriod?.is_closed && <button className="btn-primary" onClick={openCreate}>+ Agregar Gasto</button>}
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {currentPeriod && (
+            <ExportButton
+              endpoint={`/exports/expenses?period_id=${currentPeriod.id}`}
+              filename="gastos"
+              format="csv"
+              label="Exportar CSV"
+            />
+          )}
+          {!currentPeriod?.is_closed && <button className="btn-primary" onClick={openCreate}>+ Agregar Gasto</button>}
+        </div>
       </div>
 
       <div className={styles.kpis}>

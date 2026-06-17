@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import auth, config, dashboard, equipment, expenses, products, recipes, sales, services, staff
+from app.routers import auth, config, dashboard, equipment, expenses, exports, products, recipes, sales, services, staff
 
 app = FastAPI(
     title="Aestheva OS API",
@@ -28,6 +28,7 @@ app.include_router(sales.router)
 app.include_router(expenses.router)
 app.include_router(dashboard.router)
 app.include_router(config.router)
+app.include_router(exports.router)
 
 
 @app.get("/health")

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api/client";
+import ExportButton from "../components/ExportButton";
 import FormField from "../components/FormField";
 import Modal from "../components/Modal";
 import styles from "./Ventas.module.css";
@@ -139,9 +140,17 @@ export default function Ventas({ user }) {
             ))}
           </select>
         </div>
-        {!currentPeriod?.is_closed && (
-          <button className="btn-primary" onClick={openModal}>+ Registrar Visita</button>
-        )}
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {user?.role === "administrador" && currentPeriod && (
+            <>
+              <ExportButton endpoint={`/exports/sales?period_id=${currentPeriod.id}`} filename="ventas" format="csv" label="CSV ventas" />
+              <ExportButton endpoint={`/exports/marketing?period_id=${currentPeriod.id}`} filename="marketing" format="csv" label="CSV marketing" />
+            </>
+          )}
+          {!currentPeriod?.is_closed && (
+            <button className="btn-primary" onClick={openModal}>+ Registrar Visita</button>
+          )}
+        </div>
       </div>
 
       {/* KPIs */}

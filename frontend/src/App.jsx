@@ -2,10 +2,13 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import Anual from "./pages/Anual";
 import Dashboard from "./pages/Dashboard";
+import Depreciacion from "./pages/Depreciacion";
+import Equilibrio from "./pages/Equilibrio";
 import Gastos from "./pages/Gastos";
 import Inventario from "./pages/Inventario";
 import Login from "./pages/Login";
 import Servicios from "./pages/Servicios";
+import Simulador from "./pages/Simulador";
 import Ventas from "./pages/Ventas";
 
 function getUser() {
@@ -57,7 +60,22 @@ export default function App() {
           <Layout user={user}><Anual /></Layout>
         </ProtectedRoute>
       } />
-      <Route path="/" element={<Navigate to="/ventas" replace />} />
+      <Route path="/depreciacion" element={
+        <ProtectedRoute adminOnly>
+          <Layout user={user}><Depreciacion /></Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/equilibrio" element={
+        <ProtectedRoute adminOnly>
+          <Layout user={user}><Equilibrio /></Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/simulador" element={
+        <ProtectedRoute adminOnly>
+          <Layout user={user}><Simulador /></Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/" element={<Navigate to="/ventas" replace /> />
       <Route path="*" element={<Navigate to="/servicios" replace />} />
     </Routes>
   );
