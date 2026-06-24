@@ -1,7 +1,10 @@
 from decimal import Decimal
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel
+
+CommissionType = Literal["pct", "fixed"] | None
 
 
 class StaffOut(BaseModel):
@@ -19,13 +22,13 @@ class StaffOut(BaseModel):
 class StaffCreate(BaseModel):
     name: str
     area: str | None = None
-    commission_type: str | None = None
+    commission_type: CommissionType = None
     commission_value: Decimal | None = None
 
 
 class StaffUpdate(BaseModel):
     name: str | None = None
     area: str | None = None
-    commission_type: str | None = None
+    commission_type: CommissionType = None
     commission_value: Decimal | None = None
     is_active: bool | None = None

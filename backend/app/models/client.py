@@ -1,7 +1,7 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
-from sqlalchemy import DateTime, ForeignKey, String
+from sqlalchemy import Date, DateTime, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -14,9 +14,16 @@ class Client(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     full_name: Mapped[str] = mapped_column(String, nullable=False)
     phone_hash: Mapped[str | None] = mapped_column(String)
+    # Campos CRM — texto plano para permitir recordatorios y análisis de leads
+    email: Mapped[str | None] = mapped_column(String)
+    phone: Mapped[str | None] = mapped_column(String)
+    lead_source: Mapped[str | None] = mapped_column(String)
+    initial_inquiry: Mapped[str | None] = mapped_column(Text)
+    first_visit_date: Mapped[date | None] = mapped_column(Date)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     token: Mapped["ClientToken | None"] = relationship("ClientToken", back_populates="client", uselist=False)
+    appointments: Mapped[list["Appointment"]] = relationship("Appointment", back_populates="client")
 
 
 class ClientToken(Base):

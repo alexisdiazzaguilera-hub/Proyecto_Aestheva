@@ -6,7 +6,7 @@ import styles from "./Profesionales.module.css";
 
 const AREAS = ["cosmiatra", "estetico", "nutricion"];
 const AREA_LABELS = { cosmiatra: "Cosmiatra", estetico: "Estético", nutricion: "Nutrición" };
-const COMMISSION_LABELS = { porcentaje: "Porcentaje", fijo: "Monto fijo" };
+const COMMISSION_LABELS = { pct: "Porcentaje", fixed: "Monto fijo" };
 const EMPTY_FORM = { name: "", area: "estetico", commission_type: "", commission_value: "" };
 
 export default function Profesionales() {
@@ -117,7 +117,7 @@ export default function Profesionales() {
                   <td>{st.area ? AREA_LABELS[st.area] ?? st.area : "—"}</td>
                   <td>
                     {st.commission_type
-                      ? `${COMMISSION_LABELS[st.commission_type] ?? st.commission_type}: ${st.commission_value ?? "—"}${st.commission_type === "porcentaje" ? "%" : ""}`
+                      ? `${COMMISSION_LABELS[st.commission_type] ?? st.commission_type}: ${st.commission_value ?? "—"}${st.commission_type === "pct" ? "%" : ""}`
                       : "—"}
                   </td>
                   <td className={styles.actions}>
@@ -151,8 +151,8 @@ export default function Profesionales() {
               <FormField label="Tipo de comisión (opcional)">
                 <select value={form.commission_type} onChange={(e) => f({ commission_type: e.target.value })}>
                   <option value="">Sin comisión</option>
-                  <option value="porcentaje">Porcentaje</option>
-                  <option value="fijo">Monto fijo</option>
+                  <option value="pct">Porcentaje</option>
+                  <option value="fixed">Monto fijo</option>
                 </select>
               </FormField>
               <FormField label="Valor">
@@ -161,7 +161,7 @@ export default function Profesionales() {
                   value={form.commission_value}
                   onChange={(e) => f({ commission_value: e.target.value })}
                   disabled={!form.commission_type}
-                  placeholder={form.commission_type === "porcentaje" ? "Ej: 10" : "Ej: 150"}
+                  placeholder={form.commission_type === "pct" ? "Ej: 10" : "Ej: 150"}
                 />
               </FormField>
             </div>

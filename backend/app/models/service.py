@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Numeric, String
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -23,5 +23,9 @@ class Service(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
+    floor_price: Mapped[float | None] = mapped_column(Numeric(14, 2))
+    floor_price_notes: Mapped[str | None] = mapped_column(Text)
+
     equipment: Mapped["Equipment | None"] = relationship("Equipment", back_populates="services")
     recipe_lines: Mapped[list["ServiceRecipe"]] = relationship("ServiceRecipe", back_populates="service", cascade="all, delete-orphan")
+    staff_commissions: Mapped[list["ServiceStaffCommission"]] = relationship("ServiceStaffCommission", back_populates="service", cascade="all, delete-orphan")
