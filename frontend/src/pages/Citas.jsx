@@ -19,7 +19,7 @@ const FILTERS = [
   { key: "en_proceso", label: "En proceso" },
   { key: "completada", label: "Completadas" },
 ];
-const EMPTY_SERVICE_LINE = { service_id: "", service_name: "", staff_id: "", unit_price: "" };
+const EMPTY_SERVICE_LINE = { service_id: "", service_name: "", staff_id: "", unit_price: "", floor_price: null };
 
 function StatusBadge({ status }) {
   return (
@@ -65,7 +65,7 @@ export default function Citas({ user }) {
   const [serviceLines, setServiceLines] = useState([{ ...EMPTY_SERVICE_LINE }]);
 
   // Formulario cierre
-  const [closeForm, setCloseForm] = useState({ final_price: "", payment_method: "efectivo", notes: "" });
+  const [closeForm, setCloseForm] = useState({ final_price: "", payment_method: "efectivo", commission_amount: "", notes: "" });
 
   // Formulario aprobación
   const [approveForm, setApproveForm] = useState({ final_price: "", payment_method: "", commission_amount: "" });
@@ -111,6 +111,7 @@ export default function Citas({ user }) {
         const svc = services.find(s => s.id === patch.service_id);
         updated.service_name = svc?.name ?? "";
         updated.unit_price = svc?.sale_price ?? "";
+        updated.floor_price = svc?.floor_price ?? null;
       }
       return updated;
     }));
@@ -185,7 +186,7 @@ export default function Citas({ user }) {
   // ── Cerrar servicio ───────────────────────────────────────────────────────
 
   function openClose(appt) {
-    setCloseForm({ final_price: appt.final_price ?? "", payment_method: "efectivo", notes: "" });
+    setCloseForm({ final_price: appt.final_price ?? "", payment_method: "efectivo", commission_amount: appt.commission_amount ?? "", notes: "" });
     setModalError("");
     setCloseModal(appt);
   }
@@ -198,6 +199,7 @@ export default function Citas({ user }) {
       await api.patch(`/appointments/${closeModal.id}/close`, {
         final_price: Number(closeForm.final_price),
         payment_method: closeForm.payment_method,
+        commission_amount: closeForm.commission_amount !== "" ? Number(closeForm.commission_amount) : null,
         notes: closeForm.notes || null,
       });
       setCloseModal(null);
@@ -446,12 +448,12 @@ export default function Citas({ user }) {
                             placeholder="O escribe el nombre aquí"
                           />
                         </FormField>
-                        <FormField label="Precio (opcional)">
+                        <FormField label={line.floor_price ? `Precio (piso: $${Number(line.floor_price).toLocaleString("es-MX")})` : "Precio (opcional)"}>
                           <input
                             type="number" step="0.01" min="0"
                             value={line.unit_price}
                             onChange={e => updateLine(idx, { unit_price: e.target.value })}
-                            placeholder="Dejar vacío si no se sabe"
+                            placeholder={line.floor_price ? `Mín. $${Number(line.floor_price).toLocaleString("es-MX")}` : "Dejar vacío si no se sabe"}
                           />
                         </FormField>
                       </div>
@@ -509,12 +511,21 @@ export default function Citas({ user }) {
                 </FormField>
               </div>
 
+              <FormField label="Comisión del profesional ($) — opcional">
+                <input
+                  type="number" step="0.01" min="0"
+                  value={closeForm.commission_amount}
+                  onChange={e => setCloseForm(p => ({ ...p, commission_amount: e.target.value }))}
+                  placeholder="Dejar vacío si no se sabe aún"
+                />
+              </FormField>
+
               <FormField label="Notas (opcional)">
                 <input value={closeForm.notes} onChange={e => setCloseForm(p => ({ ...p, notes: e.target.value }))} placeholder="Observaciones del servicio..." />
               </FormField>
 
               <p style={{ fontSize: 12, color: "var(--text-light)", background: "var(--cream)", padding: "10px 12px", borderRadius: "var(--radius-sm)" }}>
-                La comisión del profesional quedará pendiente de aprobación por administración.
+                Si dejas la comisión vacía, administración la completará al aprobar.
               </p>
 
               {modalError && <p style={{ color: "var(--danger)", fontSize: 13 }}>{modalError}</p>}

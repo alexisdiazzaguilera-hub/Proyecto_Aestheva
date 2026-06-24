@@ -11,6 +11,7 @@ class ServicePublic(BaseModel):
     name: str
     area: str
     duration_min: int
+    floor_price: Decimal | None = None  # precio piso visible como referencia
 
     class Config:
         from_attributes = True
@@ -26,6 +27,8 @@ class ServiceAdmin(BaseModel):
     duration_min: int
     variable_cost: Decimal
     equipment_id: UUID | None
+    floor_price: Decimal | None = None
+    floor_price_notes: str | None = None
     is_active: bool
 
     class Config:
@@ -48,4 +51,6 @@ class ServiceUpdate(BaseModel):
     duration_min: int | None = None
     equipment_id: UUID | None = None
     variable_cost: Decimal | None = None
+    floor_price: Decimal | None = None
+    floor_price_notes: str | None = None
     is_active: bool | None = None

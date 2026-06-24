@@ -52,6 +52,7 @@ class FinancialClose(BaseModel):
     """Datos que recepción completa al cerrar el servicio."""
     final_price: Decimal
     payment_method: Literal["efectivo", "tarjeta", "msi"]
+    commission_amount: Decimal | None = None
     supply_cost_est: Decimal = Decimal("0")
     notes: str | None = None
 
@@ -295,11 +296,13 @@ async def close_appointment(
     appt.final_price = body.final_price
     appt.payment_method = body.payment_method
     appt.supply_cost_est = body.supply_cost_est
+    if body.commission_amount is not None:
+        appt.commission_amount = body.commission_amount
     if body.notes:
         appt.notes = body.notes
     appt.status = "completada"
     appt.completed_at = datetime.now(timezone.utc)
-    # Comisión queda null → admin debe aprobar (financial_complete permanece False)
+    # Admin debe aprobar para marcar financial_complete = True
     appt.financial_complete = False
 
     await db.commit()
