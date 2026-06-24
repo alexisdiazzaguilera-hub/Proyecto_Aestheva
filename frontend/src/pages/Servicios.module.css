@@ -18,3 +18,21 @@
 .actions { display: flex; gap: 6px; }
 .editBtn { background: var(--cream-dark); color: var(--text); padding: 5px 10px; border-radius: var(--radius-sm); font-size: 12px; border: 1px solid var(--gold-light); }
 .recipeBtn { background: none; color: var(--gold-dark); padding: 5px 10px; border-radius: var(--radius-sm); font-size: 12px; border: 1px solid var(--gold-light); }
+.floorBtn { background: none; color: var(--success); padding: 5px 10px; border-radius: var(--radius-sm); font-size: 12px; border: 1px solid #b2dfb2; transition: var(--transition); }
+.floorBtn:hover { background: #f1f8f1; }
+.floorSet { font-size: 11px; color: var(--success); font-weight: 500; }
+
+/* Calculadora de precio piso */
+.calcGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.resultBox {
+  background: var(--deep);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-top: 4px;
+}
+.resultLabel { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--gold-light); margin-bottom: 4px; }
+.resultPrice { font-family: "Cormorant Garamond", serif; font-size: 42px; color: var(--gold); font-weight: 300; line-height: 1; }
+.resultBreakdown { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+.breakdownRow { display: flex; justify-content: space-between; font-size: 12px; color: var(--gold-light); opacity: 0.8; }
+.breakdownRow.total { opacity: 1; font-weight: 500; border-top: 1px solid rgba(201,169,110,0.3); padding-top: 6px; margin-top: 2px; }
+.infeasible { color: var(--danger); font-size: 13px; background: #fff0f0; padding: 10px 12px; border-radius: var(--radius-sm); }

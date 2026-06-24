@@ -7,6 +7,7 @@ import styles from "./Servicios.module.css";
 const AREAS = ["cosmiatra", "estetico", "nutricion"];
 const AREA_LABELS = { cosmiatra: "Cosmiatra", estetico: "Estético", nutricion: "Nutrición" };
 const EMPTY_FORM = { name: "", area: "cosmiatra", sale_price: "", duration_min: "60", variable_cost: "0", equipment_id: "" };
+const BANK_RATES = { efectivo: 0, tarjeta: 0.03, msi: 0.09 };
 
 export default function Servicios({ user }) {
   const isAdmin = user?.role === "administrador";
@@ -15,6 +16,7 @@ export default function Servicios({ user }) {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const [recipeModal, setRecipeModal] = useState(null);
+  const [floorModal, setFloorModal] = useState(null); // service object
   const [equipModal, setEquipModal] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
@@ -91,7 +93,7 @@ export default function Servicios({ user }) {
           <thead>
             <tr>
               <th>SKU</th><th>Servicio</th><th>Área</th><th>Duración</th>
-              {isAdmin && <><th>Precio</th><th>Costo Receta</th><th>Margen</th><th></th></>}
+              {isAdmin && <><th>Precio</th><th>Precio Piso</th><th>Costo Receta</th><th>Margen</th><th></th></>}
             </tr>
           </thead>
           <tbody>
@@ -110,11 +112,18 @@ export default function Servicios({ user }) {
                   {isAdmin && (
                     <>
                       <td className={styles.money}>${Number(s.sale_price).toLocaleString("es-MX")}</td>
+                      <td>
+                        {s.floor_price
+                          ? <span className={styles.floorSet}>${Number(s.floor_price).toLocaleString("es-MX")}</span>
+                          : <span style={{ color: "var(--text-light)", fontSize: 12 }}>—</span>
+                        }
+                      </td>
                       <td className={styles.money}>${Number(s.recipe_cost_total ?? 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
                       <td><span className={`${styles.margin} ${marginClass}`}>{margin?.toFixed(1)}%</span></td>
                       <td className={styles.actions}>
                         <button className={styles.editBtn} onClick={() => openEdit(s)}>Editar</button>
                         <button className={styles.recipeBtn} onClick={() => setRecipeModal(s)}>Receta</button>
+                        <button className={styles.floorBtn} onClick={() => setFloorModal(s)}>Precio Piso</button>
                       </td>
                     </>
                   )}
@@ -165,6 +174,10 @@ export default function Servicios({ user }) {
         <RecipeModal service={recipeModal} onClose={() => { setRecipeModal(null); load(); }} />
       )}
 
+      {floorModal && (
+        <FloorCalcModal service={floorModal} onClose={() => { setFloorModal(null); load(); }} />
+      )}
+
       {equipModal && (
         <Modal title="Nuevo Equipo" onClose={() => setEquipModal(false)}>
           <form onSubmit={handleSaveEquip}>
@@ -184,6 +197,102 @@ export default function Servicios({ user }) {
         </Modal>
       )}
     </div>
+  );
+}
+
+function FloorCalcModal({ service, onClose }) {
+  const [calc, setCalc] = useState({
+    supply_cost: String(service.variable_cost ?? "0"),
+    commission: "",
+    payment_method: "tarjeta",
+    margin_pct: "20",
+    notes: "",
+  });
+  const [saving, setSaving] = useState(false);
+
+  const c = (patch) => setCalc(p => ({ ...p, ...patch }));
+
+  // Cálculo en vivo
+  const supply = parseFloat(calc.supply_cost) || 0;
+  const commission = parseFloat(calc.commission) || 0;
+  const bankRate = BANK_RATES[calc.payment_method] ?? 0;
+  const marginRate = (parseFloat(calc.margin_pct) || 0) / 100;
+  const denominator = 1 - bankRate - marginRate;
+  const feasible = denominator > 0;
+  const floorPrice = feasible ? (supply + commission) / denominator : null;
+  const bankFee = floorPrice ? floorPrice * bankRate : 0;
+  const marginAmount = floorPrice ? floorPrice * marginRate : 0;
+
+  async function handleSave() {
+    if (!floorPrice) return;
+    setSaving(true);
+    try {
+      const notes = `Insumos $${supply.toFixed(2)} + Comisión $${commission.toFixed(2)} + Banco ${(bankRate * 100).toFixed(0)}% + Margen ${calc.margin_pct}%`;
+      await api.put(`/services/${service.id}`, {
+        floor_price: parseFloat(floorPrice.toFixed(2)),
+        floor_price_notes: notes,
+      });
+      onClose();
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Modal title={`Precio Piso — ${service.name}`} onClose={onClose}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <p style={{ fontSize: 13, color: "var(--text-light)" }}>
+          Calcula el precio mínimo aceptable para este servicio cubriendo todos los costos y el margen deseado.
+        </p>
+
+        <div className={styles.calcGrid}>
+          <FormField label="Costo de insumos ($)">
+            <input type="number" step="0.01" min="0" value={calc.supply_cost} onChange={e => c({ supply_cost: e.target.value })} autoFocus />
+          </FormField>
+          <FormField label="Comisión al profesional ($)">
+            <input type="number" step="0.01" min="0" value={calc.commission} onChange={e => c({ commission: e.target.value })} placeholder="0.00" />
+          </FormField>
+          <FormField label="Método de pago">
+            <select value={calc.payment_method} onChange={e => c({ payment_method: e.target.value })}>
+              <option value="efectivo">Efectivo (0%)</option>
+              <option value="tarjeta">Tarjeta (3%)</option>
+              <option value="msi">3 MSI (9%)</option>
+            </select>
+          </FormField>
+          <FormField label="Margen mínimo deseado (%)">
+            <input type="number" step="1" min="0" max="99" value={calc.margin_pct} onChange={e => c({ margin_pct: e.target.value })} />
+          </FormField>
+        </div>
+
+        {/* Resultado */}
+        {!feasible ? (
+          <p className={styles.infeasible}>
+            La combinación de comisión bancaria ({(bankRate * 100).toFixed(0)}%) y margen ({calc.margin_pct}%) supera el 100% — ajusta los valores.
+          </p>
+        ) : (
+          <div className={styles.resultBox}>
+            <p className={styles.resultLabel}>Precio piso sugerido</p>
+            <p className={styles.resultPrice}>${floorPrice.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            <div className={styles.resultBreakdown}>
+              <div className={styles.breakdownRow}><span>Insumos</span><span>${supply.toFixed(2)}</span></div>
+              <div className={styles.breakdownRow}><span>Comisión profesional</span><span>${commission.toFixed(2)}</span></div>
+              <div className={styles.breakdownRow}><span>Comisión banco</span><span>${bankFee.toFixed(2)}</span></div>
+              <div className={`${styles.breakdownRow} ${styles.total}`}><span>Costos totales</span><span>${(supply + commission + bankFee).toFixed(2)}</span></div>
+              <div className={styles.breakdownRow}><span>Margen neto ({calc.margin_pct}%)</span><span>${marginAmount.toFixed(2)}</span></div>
+            </div>
+          </div>
+        )}
+
+        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+          <button className="btn-secondary" onClick={onClose}>Cancelar</button>
+          <button className="btn-primary" onClick={handleSave} disabled={!feasible || saving}>
+            {saving ? "Guardando..." : "Guardar como precio piso"}
+          </button>
+        </div>
+      </div>
+    </Modal>
   );
 }
 
