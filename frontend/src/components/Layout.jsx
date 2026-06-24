@@ -19,6 +19,7 @@ export default function Layout({ user, children }) {
         </div>
 
         <nav className={styles.nav}>
+          <a href="/calendario" className={styles.navItem}>Calendario</a>
           <a href="/citas" className={styles.navItem}>Citas</a>
           <a href="/ventas" className={styles.navItem}>Ventas del Mes</a>
           {user?.role === "administrador" && (

@@ -7,6 +7,7 @@ import Depreciacion from "./pages/Depreciacion";
 import Equilibrio from "./pages/Equilibrio";
 import Gastos from "./pages/Gastos";
 import Inventario from "./pages/Inventario";
+import Calendario from "./pages/Calendario";
 import Citas from "./pages/Citas";
 import Login from "./pages/Login";
 import Profesionales from "./pages/Profesionales";
@@ -41,6 +42,11 @@ export default function App() {
       <Route path="/inventario" element={
         <ProtectedRoute adminOnly>
           <Layout user={user}><Inventario /></Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/calendario" element={
+        <ProtectedRoute>
+          <Layout user={user}><Calendario /></Layout>
         </ProtectedRoute>
       } />
       <Route path="/citas" element={

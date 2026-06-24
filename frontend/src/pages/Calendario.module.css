@@ -1,0 +1,125 @@
+.container { padding: 32px; max-width: 1400px; margin: 0 auto; }
+
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; gap: 16px; flex-wrap: wrap; }
+.header h2 { font-size: 28px; }
+.weekNav { display: flex; align-items: center; gap: 12px; }
+.weekLabel { font-size: 15px; font-weight: 500; color: var(--deep); min-width: 220px; text-align: center; }
+.navBtn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--gold-light);
+  background: var(--white);
+  color: var(--gold-dark);
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition);
+}
+.navBtn:hover { background: var(--cream-dark); border-color: var(--gold); }
+.todayBtn { padding: 7px 16px; border: 1px solid var(--gold-light); border-radius: 20px; background: var(--white); color: var(--gold-dark); font-size: 12px; font-weight: 500; transition: var(--transition); }
+.todayBtn:hover { background: var(--cream-dark); }
+
+/* Grid */
+.calendarWrap { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: auto; }
+.grid { display: grid; grid-template-columns: 52px repeat(7, 1fr); min-width: 700px; }
+
+/* Day headers */
+.cornerCell { border-bottom: 2px solid var(--cream-dark); }
+.dayHeader {
+  padding: 12px 8px;
+  text-align: center;
+  border-bottom: 2px solid var(--cream-dark);
+  border-left: 1px solid var(--cream-dark);
+}
+.dayName { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-light); font-weight: 500; }
+.dayNum { font-size: 22px; font-family: "Cormorant Garamond", serif; color: var(--deep); line-height: 1.2; margin-top: 2px; }
+.dayHeader.today .dayNum { color: var(--gold-dark); font-weight: 600; }
+.dayHeader.today { background: linear-gradient(180deg, #fdf8ef 0%, transparent 100%); }
+
+/* Time body */
+.timeCol { display: flex; flex-direction: column; }
+.hourLabel {
+  height: 80px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 6px 8px 0 0;
+  font-size: 11px;
+  color: var(--text-light);
+  flex-shrink: 0;
+  border-top: 1px solid var(--cream-dark);
+}
+.hourLabel:first-child { border-top: none; }
+
+.dayCol {
+  position: relative;
+  border-left: 1px solid var(--cream-dark);
+  min-height: 960px; /* 12 hours × 80px */
+}
+.hourLine {
+  position: absolute;
+  left: 0; right: 0;
+  border-top: 1px solid var(--cream-dark);
+  pointer-events: none;
+}
+.halfLine {
+  position: absolute;
+  left: 0; right: 0;
+  border-top: 1px dashed #ede8de;
+  pointer-events: none;
+}
+
+/* Appointment cards */
+.apptCard {
+  position: absolute;
+  left: 3px; right: 3px;
+  border-radius: 6px;
+  padding: 5px 7px;
+  font-size: 11px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  border-left: 3px solid transparent;
+  box-shadow: 0 1px 4px rgba(44,24,16,0.1);
+  z-index: 1;
+}
+.apptCard:hover { box-shadow: 0 4px 12px rgba(44,24,16,0.18); transform: translateY(-1px); z-index: 10; }
+
+.area-cosmiatra { background: #f3eeff; border-left-color: #9c6fc0; }
+.area-estetico  { background: #fff0f0; border-left-color: #c84040; }
+.area-nutricion { background: #edfff3; border-left-color: #2e7d46; }
+.area-default   { background: #fdf8ef; border-left-color: var(--gold); }
+
+.status-cancelada { opacity: 0.4; }
+.status-completada { filter: saturate(0.5); }
+
+.apptTime { font-weight: 600; color: var(--deep); white-space: nowrap; }
+.apptClient { font-weight: 500; color: var(--deep); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+.apptService { color: var(--text-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 10px; margin-top: 1px; }
+.statusDot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+.dot-agendada   { background: #3a5bbf; }
+.dot-confirmada { background: #1565c0; }
+.dot-en_proceso { background: #c8a840; }
+.dot-completada { background: var(--success); }
+.dot-cancelada  { background: #9e9e9e; }
+
+/* Detail popup */
+.popup {
+  position: fixed;
+  z-index: 100;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px rgba(44,24,16,0.18);
+  padding: 18px 20px;
+  min-width: 240px;
+  max-width: 300px;
+  border: 1px solid var(--cream-dark);
+}
+.popupHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 8px; }
+.popupTitle { font-family: "Cormorant Garamond", serif; font-size: 17px; color: var(--deep); font-weight: 400; }
+.popupClose { background: none; color: var(--text-light); font-size: 16px; padding: 0 4px; line-height: 1; flex-shrink: 0; }
+.popupRow { display: flex; gap: 8px; font-size: 12px; padding: 5px 0; border-bottom: 1px solid var(--cream-dark); }
+.popupRow:last-child { border-bottom: none; }
+.popupKey { color: var(--text-light); min-width: 72px; flex-shrink: 0; }
+.popupVal { color: var(--deep); font-weight: 500; }
+
+.error { color: var(--danger); font-size: 13px; padding: 16px; }

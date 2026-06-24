@@ -220,6 +220,8 @@ async def create_appointment(
 async def list_appointments(
     status: str | None = None,
     pending_financial: bool = False,
+    date_from: datetime | None = None,
+    date_to: datetime | None = None,
     _: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db_with_role),
 ):
@@ -235,6 +237,10 @@ async def list_appointments(
             Appointment.status != "cancelada",
             Appointment.financial_complete == False,
         )
+    if date_from:
+        query = query.where(Appointment.scheduled_at >= date_from)
+    if date_to:
+        query = query.where(Appointment.scheduled_at < date_to)
     result = await db.execute(query)
     return result.scalars().all()
 
