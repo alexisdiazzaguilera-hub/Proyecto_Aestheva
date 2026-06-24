@@ -33,7 +33,7 @@ class Appointment(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
-    client: Mapped["Client"] = relationship("Client")
+    client: Mapped["Client"] = relationship("Client", back_populates="appointments")
     services: Mapped[list["AppointmentService"]] = relationship("AppointmentService", back_populates="appointment", cascade="all, delete-orphan", order_by="AppointmentService.sort_order")
     approver: Mapped["User | None"] = relationship("User", foreign_keys=[approved_by])
     creator: Mapped["User"] = relationship("User", foreign_keys=[created_by])
