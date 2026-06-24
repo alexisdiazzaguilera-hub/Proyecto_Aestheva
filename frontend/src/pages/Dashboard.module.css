@@ -28,3 +28,32 @@
 .alertStock { font-size: 12px; font-weight: 600; color: var(--danger); }
 
 .configHint { background: var(--cream-dark); border: 1px solid var(--gold-light); border-radius: var(--radius-sm); padding: 14px 18px; font-size: 13px; color: var(--text-light); }
+
+/* Staff performance */
+.staffTable { width: 100%; border-collapse: collapse; }
+.staffTable th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-light); font-weight: 500; padding: 8px 12px; text-align: left; border-bottom: 2px solid var(--cream-dark); }
+.staffTable td { padding: 12px; border-bottom: 1px solid var(--cream-dark); font-size: 13px; }
+.staffTable tr:last-child td { border-bottom: none; }
+.staffTable tr:hover td { background: var(--cream); }
+.staffName { font-weight: 500; color: var(--deep); }
+.staffCount { color: var(--text-light); font-size: 12px; }
+.moneyCell { font-weight: 500; text-align: right; }
+.commCell { color: var(--text-light); text-align: right; font-size: 12px; }
+.netCell { font-weight: 600; text-align: right; }
+.rankBadge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 600; margin-right: 8px; }
+.rank1 { background: #fff3cd; color: #856404; }
+.rank2 { background: var(--cream-dark); color: var(--text-light); }
+.rank3 { background: #fce8d8; color: #8a4a20; }
+
+/* Area bars */
+.areaGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+.areaCard { background: var(--cream); border-radius: var(--radius-sm); padding: 16px 18px; border: 1px solid var(--cream-dark); }
+.areaLabel { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; margin-bottom: 8px; }
+.areaRevenue { font-family: "Cormorant Garamond", serif; font-size: 24px; color: var(--deep); margin-bottom: 6px; }
+.areaBar { height: 6px; border-radius: 3px; background: var(--cream-dark); overflow: hidden; }
+.areaBarFill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.area-cosmiatra .areaBarFill { background: #9c6fc0; }
+.area-estetico  .areaBarFill { background: #c84040; }
+.area-nutricion .areaBarFill { background: #2e7d46; }
+.areaPct { font-size: 12px; color: var(--text-light); margin-top: 4px; }
+.emptyState { color: var(--text-light); font-size: 13px; padding: 16px 0; text-align: center; }
